@@ -1,0 +1,8 @@
+export const CONSTANTS = {
+
+    DOUBLE_COUNTES: "\"",
+    OPEN_CURLY_BRACKETS: "{",
+    CLOSE_CURLY_BRACKETS: "}",
+    STATIC_STATUS_CODE: 400,
+
+}

@@ -1,0 +1,31 @@
+{
+  "name": "smartdelta-backend-ts",
+  "version": "0.0.1",
+  "description": "SmartDeltaApi-NodeJs-Express-Typescript",
+  "main": "server.ts",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon ./server.ts",
+    "build": "tsc"
+  },
+  "author": "Omer Dincer - Orion Innovation",
+  "license": "MIT",
+  "dependencies": {
+    "csv": "^6.2.8",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "multer": "^1.4.5-lts.1",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^18.14.4",
+    "@types/winston": "^2.4.4",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}
