@@ -8,6 +8,10 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Files
+src/data/uploads/csvData/*
+src/data/others/
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -129,18 +133,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-github/gitignore: A collection of useful .gitignore templates

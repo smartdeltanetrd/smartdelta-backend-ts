@@ -25,17 +25,6 @@ class AttachmentRouterClass extends BaseRouterClass {
                 path: req.file?.filename || ""
             }
 
-            console.log("buffer :" ,req.file?.buffer)
-            console.log("destination :" ,req.file?.destination)
-            console.log("fieldname :" ,req.file?.fieldname)
-            console.log("filename :" ,req.file?.filename)
-            console.log("mimetype :" ,req.file?.mimetype)
-            console.log("originalname :" ,req.file?.originalname)
-            console.log("path :" ,req.file?.path)
-            console.log("size :" ,req.file?.size)
-            console.log("stream :" ,req.file?.stream)
-
-
             const attachment = await this.AttachmentController.uploadAttachment(attach);
 
             res.status(201).json(attachment)
@@ -52,7 +41,7 @@ class AttachmentRouterClass extends BaseRouterClass {
         try {
 
             let csvName = req.body.name
-            let csvPath = path.join(process.cwd(), 'src/data/uploads/csvData', csvName)
+            let csvPath = path.join(process.cwd(), this.config.MULTER_CSV_DIR || 'src/data/uploads/csvData', csvName)
 
             let analyzedData = await this.AttachmentController.analyzeAttachment(csvPath)
 
@@ -71,7 +60,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 
     initRoutes(): void {
         this.router.post('/upload', upload.single("file"), this.addNewAttachment.bind(this));
-        // this.router.post('/attachment/upload', upload.single("file"), this.addNewAttachment.bind(this))
         this.router.get('/analyze', this.analyzeAttachment.bind(this))
     }
 }

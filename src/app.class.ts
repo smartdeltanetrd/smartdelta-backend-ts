@@ -8,6 +8,7 @@ import CommonClass from "./utils/classes/CommonClass";
 class App extends CommonClass {
 
     private app: express.Application;
+    private appPort: any;
 
     constructor() {
         super();
@@ -30,22 +31,22 @@ class App extends CommonClass {
     private configApp() {
         this.app.use(express.json())
         this.app.use(express.urlencoded({ extended: true }));
+        this.appPort = this.config.default.PORT || 3001
     }
 
     public startApp() {
 
         mongoSetup();
 
-        this.app.listen(this.config.default.PORT, () => {
+        this.app.listen(this.appPort, () => {
             console.log(`
             ▒█▀▀▀█ ▒█▀▄▀█ ░█▀▀█ ▒█▀▀█ ▀▀█▀▀ ▒█▀▀▄ ▒█▀▀▀ ▒█░░░ ▀▀█▀▀ ░█▀▀█ ░░ ░█▀▀█ ▒█▀▀█ ▀█▀ 
             ░▀▀▀▄▄ ▒█▒█▒█ ▒█▄▄█ ▒█▄▄▀ ░▒█░░ ▒█░▒█ ▒█▀▀▀ ▒█░░░ ░▒█░░ ▒█▄▄█ ▀▀ ▒█▄▄█ ▒█▄▄█ ▒█░ 
             ▒█▄▄▄█ ▒█░░▒█ ▒█░▒█ ▒█░▒█ ░▒█░░ ▒█▄▄▀ ▒█▄▄▄ ▒█▄▄█ ░▒█░░ ▒█░▒█ ░░ ▒█░▒█ ▒█░░░ ▄█▄
             `)
 
-
             if (this.config.NODE_ENV !== "production") {
-                this.logger.log("info", `Smart Delta API is ONLINE ${this.config.default.PORT}`)
+                this.logger.log("info", `Smart Delta API is ONLINE at PORT : ${this.appPort}`)
             }
         })
     }
