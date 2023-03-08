@@ -3,7 +3,9 @@ import express, { Request, Response } from "express"
 import mongoSetup from "./config/db/mongo";
 import { AttachmentRoutes } from "./routes/AttachmentRoute/AttachmentRoute.route";
 import CommonClass from "./utils/classes/CommonClass";
+import { restResponseTimeHistogram, startMetricsServer } from "./middlewares/prometheus/prom-metrics";
 
+import responseTime from "response-time";
 
 class App extends CommonClass {
 
@@ -15,11 +17,24 @@ class App extends CommonClass {
         this.app = express();
         this.configApp();
         this.initRoutes();
-
     }
 
     private initRoutes() {
 
+        this.app.use(
+            responseTime((req: Request, res: Response, time: number) => {
+                if (req?.route?.path) {
+                    restResponseTimeHistogram.observe(
+                        {
+                            method: req.method,
+                            route: req.route.path,
+                            status_code: res.statusCode,
+                        },
+                        time * 1000
+                    );
+                }
+            })
+        );
         this.app.use('/attachment', AttachmentRoutes)
         this.app.get('/', (req: Request, res: Response, next) => {
             res.json({
@@ -31,7 +46,7 @@ class App extends CommonClass {
     private configApp() {
         this.app.use(express.json())
         this.app.use(express.urlencoded({ extended: true }));
-        this.appPort = this.config.default.PORT || 3001
+        this.appPort = this.config.default.PORT || 3002
     }
 
     public startApp() {
@@ -44,6 +59,7 @@ class App extends CommonClass {
             ░▀▀▀▄▄ ▒█▒█▒█ ▒█▄▄█ ▒█▄▄▀ ░▒█░░ ▒█░▒█ ▒█▀▀▀ ▒█░░░ ░▒█░░ ▒█▄▄█ ▀▀ ▒█▄▄█ ▒█▄▄█ ▒█░ 
             ▒█▄▄▄█ ▒█░░▒█ ▒█░▒█ ▒█░▒█ ░▒█░░ ▒█▄▄▀ ▒█▄▄▄ ▒█▄▄█ ░▒█░░ ▒█░▒█ ░░ ▒█░▒█ ▒█░░░ ▄█▄
             `)
+            startMetricsServer();
 
             if (this.config.NODE_ENV !== "production") {
                 this.logger.log("info", `Smart Delta API is ONLINE at PORT : ${this.appPort}`)
