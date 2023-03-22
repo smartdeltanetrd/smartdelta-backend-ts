@@ -6,6 +6,7 @@ import CommonClass from "./utils/classes/CommonClass";
 import { restResponseTimeHistogram, startMetricsServer } from "./middlewares/prometheus/prom-metrics";
 
 import responseTime from "response-time";
+ import { errorMiddleware } from "./middlewares/error/error.middleware";
 
 class App extends CommonClass {
 
@@ -17,6 +18,7 @@ class App extends CommonClass {
         this.app = express();
         this.configApp();
         this.initRoutes();
+        this.initMiddlewares();
     }
 
     private initRoutes() {
@@ -41,6 +43,16 @@ class App extends CommonClass {
                 message: "Hello World"
             })
         })
+        this.app.get('/stressTest', (req: Request, res: Response) => {
+
+            for (let i = 0; i < 9999999999; i++) {
+
+            }
+            res.status(200).json(
+                { message: "Stress Test Done." }
+            )
+
+        })
     }
 
     private configApp() {
@@ -49,9 +61,13 @@ class App extends CommonClass {
         this.appPort = this.config.default.PORT || 3002
     }
 
-    public startApp() {
+    private initMiddlewares() {
+        this.app.use(errorMiddleware)
+    }
 
-        mongoSetup();
+    public async startApp() {
+
+        await mongoSetup();
 
         this.app.listen(this.appPort, () => {
             console.log(`
