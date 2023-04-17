@@ -6,7 +6,10 @@ import CommonClass from "./utils/classes/CommonClass";
 import { restResponseTimeHistogram, startMetricsServer } from "./middlewares/prometheus/prom-metrics";
 
 import responseTime from "response-time";
- import { errorMiddleware } from "./middlewares/error/error.middleware";
+import { errorMiddleware } from "./middlewares/error/error.middleware";
+import EdgeModel from "./models/MicroserviceArchitectureModels/EdgeModel/EdgeModel.model";
+import MLModelInputsConts from "./utils/constants/MLModelInput.constants";
+import { log } from "console";
 
 class App extends CommonClass {
 
@@ -42,6 +45,18 @@ class App extends CommonClass {
             res.json({
                 message: "Hello World"
             })
+        })
+        this.app.get('/deneme', async (req: Request, res: Response) => {
+            // let test = {
+            //     messageRealm: "deneme"
+            // }
+
+            // console.log(test);
+
+            // let deneme = new EdgeModel(test)
+            // let resp = await deneme.save();
+
+            res.status(200).json(31)
         })
         this.app.get('/stressTest', (req: Request, res: Response) => {
 
@@ -80,6 +95,9 @@ class App extends CommonClass {
             if (this.config.NODE_ENV !== "production") {
                 this.logger.log("info", `Smart Delta API is ONLINE at PORT : ${this.appPort}`)
             }
+
+            console.log(__dirname)
+
         })
     }
 }
