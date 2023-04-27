@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import { parse } from 'csv-parse';
 import { ColumnEnum, LevelDataEnum, MessageEnum, MessageParamsEnum, ServiceDataEnum } from '../../utils/enums/CSVHeaders.enum';
-import { MLModelInputsConts, EdgePropConts } from '../../utils/constants/LogicConstants.constants';
+import { EdgePropConts } from '../../utils/constants/LogicConstants.constants';
 import { CONSTANTS } from '../../utils/Constants.constant';
 import { IAnalyze } from '../../utils/interfaces/ILogic/IAnalyze';
-import { NodeType } from '../../utils/types/NodeType';
+import { NodeType } from '../../utils/types/NodeType.type';
 
 export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
 	return new Promise((resolve, reject) => {

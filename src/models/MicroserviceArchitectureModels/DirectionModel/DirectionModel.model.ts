@@ -1,6 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import { DirectionSchema } from "../Schemas/Schemas.schema";
+import mongoose from 'mongoose';
 
-const DirectionModel = mongoose.model("Direction", DirectionSchema);
+import { DirectionSchema } from '../Schemas/Schemas.schema';
+
+const DirectionModel = mongoose.model('Direction', DirectionSchema);
 
 export default DirectionModel;
