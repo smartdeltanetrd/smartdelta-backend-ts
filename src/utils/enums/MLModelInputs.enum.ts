@@ -1,0 +1,16 @@
+export enum MLModelInputsEnum {
+    messageRealm = "messageRealm",
+    serviceAction = "serviceAction",
+    subscriber = "messageParams.subscriber",
+    messageQueue = "messageParams.calledMessageQueue",
+    type = "messageParams.type",
+    messageID = "messageParams.messageID",
+    correlationID = "messageParams.correlationID",
+    transactionID = "messageParams.transactionID",
+    originatingMS = "messageParams.originatingMS",
+    terminatingMS = "messageParams.terminatingMS",
+    statusCode = "serviceData.httpParams.statusCode",
+    messageIDLen = "message_id_length",
+    correlationIDLen = "correlation_id_length",
+    transactionIDLen = "transaction_id_length",
+}

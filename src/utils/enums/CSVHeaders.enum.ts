@@ -18,7 +18,12 @@ export enum MessageEnum {
 }
 
 export enum MessageParamsEnum {
+    SUBSCRIBER = "subscriber",
+    CALLED_MESSAGE_QUEUE = "calledMessageQueue",
     TYPE = "type",
+    MESSAGE_ID = "messageID",
+    CORRELATION_ID = "correlationID",
+    TRANSACTION_ID = "transactionID",
     ORIGINATING_MS = "originatingMS",
     TERMINATING_MS = "terminatingMS",
 }
