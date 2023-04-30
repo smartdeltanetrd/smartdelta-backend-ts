@@ -64,7 +64,6 @@ function extractColumnParams(parameterArray: any, columnEnums: any): Promise<Map
 		if (!parameterMap.size) {
 			reject(new Error('Requested CSV Headers Cannot Found in CSV File'));
 		}
-		console.log(parameterMap);
 		resolve(parameterMap);
 	});
 }
@@ -101,7 +100,6 @@ function parseLogRow(record: any, columnNames: Map<string, number>) {
 		delete flattenedRowObj.get('message')['messageParams'].authorization;
 
 		flatJSONObject(flattenedRowObj);
-		// console.log(flattenedRowObj);
 		return flattenedRowObj;
 	} catch (error) {
 		console.log(error);
