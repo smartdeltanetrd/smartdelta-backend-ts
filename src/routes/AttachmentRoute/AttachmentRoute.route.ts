@@ -23,6 +23,7 @@ class AttachmentRouterClass extends BaseRouterClass {
 			let attachment = await this.AttachmentController.analyzeAttachment(csvPath);
 			attachment['path'] = req.file.filename;
 			const result = await this.AttachmentController.uploadAttachment(attachment);
+			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
 			res.status(201).json(result);
 		} catch (error) {
 			next(new BaseError(this.catchError(error, 'Internal Server Error'), 'AttachmentUpload', 500, 'Internal Server Error'));
