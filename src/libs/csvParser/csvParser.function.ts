@@ -5,6 +5,7 @@ import { EdgePropConts } from '../../utils/constants/LogicConstants.constants';
 import { CONSTANTS } from '../../utils/Constants.constant';
 import { IAnalyze } from '../../utils/interfaces/ILogic/IAnalyze';
 import { NodeType } from '../../utils/types/NodeType.type';
+import BaseError from '../../utils/classes/BaseErrorClass';
 
 export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
 	return new Promise((resolve, reject) => {
@@ -44,12 +45,6 @@ export async function processData(rawDataChunk: any[]) {
 
 	return analyzedAttachment;
 }
-
-/*  extractColumnParams(parameterArray:any , columnEnums:any)
-    Extracts CSV's first row to parse column names from it and converts Map depending on columnEnum 
-    Returns Map<string,number> = (ColumnName : ColumnIndex)
-    . 
-*/
 function extractColumnParams(parameterArray: any, columnEnums: any): Promise<Map<string, number>> {
 	return new Promise((resolve, reject) => {
 		const columnEnumValues = Object.values(columnEnums);
@@ -61,8 +56,8 @@ function extractColumnParams(parameterArray: any, columnEnums: any): Promise<Map
 				parameterMap.set(element.toLowerCase().replace('@', ''), index);
 			}
 		});
-		if (!parameterMap.size) {
-			reject(new Error('Requested CSV Headers Cannot Found in CSV File'));
+		if (!parameterMap.size) { // Change to parameter map size compared to csv headers const length.
+			reject(new BaseError('Requested CSV Headers Cannot Found in CSV File', 'Unprocessable Content', 422, "Wrong Filetype Exception"));
 		}
 		resolve(parameterMap);
 	});
@@ -93,8 +88,8 @@ function parseLogRow(record: any, columnNames: Map<string, number>) {
 			value === columnNames.get(ColumnEnum.MESSAGE_CELL_NAME)
 				? ''
 				: record[value]
-				? flattenedRowObj.set(key.replace('@', ''), record[value].trim())
-				: '';
+					? flattenedRowObj.set(key.replace('@', ''), record[value].trim())
+					: '';
 		}
 		delete flattenedRowObj.get('message')['authorization'];
 		delete flattenedRowObj.get('message')['messageParams'].authorization;
@@ -102,7 +97,6 @@ function parseLogRow(record: any, columnNames: Map<string, number>) {
 		flatJSONObject(flattenedRowObj);
 		return flattenedRowObj;
 	} catch (error) {
-		console.log(error);
 		throw new Error('Cannot Parse Row');
 	}
 }
@@ -110,58 +104,58 @@ function flatJSONObject(flattenedRowObj: Map<string, any>) {
 	//timestamp
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
 		? flattenedRowObj.set(
-				EdgePropConts['messageRealm'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
-		  )
+			EdgePropConts['messageRealm'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
+		)
 		: '';
 
 	//messageRealm
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
 		? flattenedRowObj.set(
-				EdgePropConts['messageRealm'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
-		  )
+			EdgePropConts['messageRealm'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
+		)
 		: '';
 
 	//serviceAction
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_ACTION]
 		? flattenedRowObj.set(
-				EdgePropConts['serviceAction'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_ACTION]
-		  )
+			EdgePropConts['serviceAction'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_ACTION]
+		)
 		: '';
 
 	/* UNDER MESSAGE_PARAMS SECTION. MIGHT ME LOOP EXCEPT STATUS-CODE*/
 	//subscriber
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.SUBSCRIBER]
 		? flattenedRowObj.set(
-				EdgePropConts['subscriber'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.SUBSCRIBER]
-		  )
+			EdgePropConts['subscriber'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.SUBSCRIBER]
+		)
 		: '';
 
 	//calledMessageQueue
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.CALLED_MESSAGE_QUEUE]
 		? flattenedRowObj.set(
-				EdgePropConts['calledMessageQueue'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.CALLED_MESSAGE_QUEUE]
-		  )
+			EdgePropConts['calledMessageQueue'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.CALLED_MESSAGE_QUEUE]
+		)
 		: '';
 
 	//type
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TYPE]
 		? flattenedRowObj.set(
-				EdgePropConts['type'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TYPE]
-		  )
+			EdgePropConts['type'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TYPE]
+		)
 		: '';
 
 	//messageID
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.MESSAGE_ID]
 		? flattenedRowObj.set(
-				EdgePropConts['messageID'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.MESSAGE_ID]
-		  )
+			EdgePropConts['messageID'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.MESSAGE_ID]
+		)
 		: '';
 
 	//correlationID
@@ -182,45 +176,45 @@ function flatJSONObject(flattenedRowObj: Map<string, any>) {
 	//originatingMS
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.ORIGINATING_MS]
 		? flattenedRowObj.set(
-				EdgePropConts['originatingMS'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.ORIGINATING_MS]
-		  )
+			EdgePropConts['originatingMS'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.ORIGINATING_MS]
+		)
 		: '';
 
 	//terminatingMS
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TERMINATING_MS]
 		? flattenedRowObj.set(
-				EdgePropConts['terminatingMS'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TERMINATING_MS]
-		  )
+			EdgePropConts['terminatingMS'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TERMINATING_MS]
+		)
 		: '';
 
 	//statusCode
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.STATUS_CODE] ||
-	(flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS] &&
-		flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS][
+		(flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS] &&
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS][
 			ServiceDataEnum.STATUS_CODE
-		])
+			])
 		? flattenedRowObj.set(
-				EdgePropConts['statusCode'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.STATUS_CODE] ||
-					flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS][
-						ServiceDataEnum.STATUS_CODE
-					]
-		  )
+			EdgePropConts['statusCode'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.STATUS_CODE] ||
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_DATA][ServiceDataEnum.HTTP_PARAMS][
+			ServiceDataEnum.STATUS_CODE
+			]
+		)
 		: flattenedRowObj.set(EdgePropConts['statusCode'], CONSTANTS.STATIC_STATUS_CODE);
 
 	/* UNDER MESSAGE_PARAMS SECTION. MIGHT BE LOOP EXCEPT STATUS-CODE*/
 
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TRANSACTION_ID]
 		? flattenedRowObj.set(
-				EdgePropConts['messageIDLen'],
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.MESSAGE_ID].length
-		  )
+			EdgePropConts['messageIDLen'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.MESSAGE_ID].length
+		)
 		: flattenedRowObj.set(
-				flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TRANSACTION_ID],
-				0
-		  );
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_PARAMS][MessageParamsEnum.TRANSACTION_ID],
+			0
+		);
 
 	Object.values(ColumnEnum).forEach((item) => {
 		flattenedRowObj.set(item, flattenedRowObj.get(item));

@@ -13,20 +13,25 @@ class AttachmentRouterClass extends BaseRouterClass {
 		this.AttachmentController = new AttachmentController();
 	}
 
+	//Error Handling Implemantations Done
 	async addNewAttachment(req: Request, res: Response, next: NextFunction) {
 		try {
+			// Check if file exist in request
 			if (!req.file) {
-				next(new BaseError('No file provided', 'Undefined file', 422, 'No File Provided'));
+				next(new BaseError(`"file" parameter does not provided in request object`, "Bad Request", 400, "Bad Request Occured While Adding Attachment"))
 				return;
 			}
 			let csvPath = path.join(process.cwd(), this.config.MULTER_CSV_DIR || 'src/data/uploads/csvData', req.file?.filename);
+
 			let attachment = await this.AttachmentController.analyzeAttachment(csvPath);
+
 			attachment['path'] = req.file.filename;
 			const result = await this.AttachmentController.uploadAttachment(attachment);
+
 			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
 			res.status(201).json(result);
 		} catch (error) {
-			next(new BaseError(this.catchError(error, 'Internal Server Error'), 'AttachmentUpload', 500, 'Internal Server Error'));
+			this.handleError(error, next)
 		}
 	}
 
@@ -34,51 +39,43 @@ class AttachmentRouterClass extends BaseRouterClass {
 		try {
 			let csvName = req.body.name;
 			let attachment = await this.AttachmentController.getAttachment(csvName);
-			if (!attachment) {
-				res.status(404).send('Not Found');
-				return;
-			}
 			res.status(200).send(attachment);
 		} catch (error: any) {
-			this.logger.error(error.message);
-			next(
-				new BaseError(this.catchError(error, 'Internal Server Error'), 'Reading Attachment Failed', 500, 'Internal Server Error')
-			);
+			this.handleError(error, next)
 		}
 	}
 
 	async getMLCSVData(req: Request, res: Response, next: NextFunction) {
 		try {
-			const { headers, data } = await this.AttachmentController.formatAttachmentToCSV(req.body.name);
-
+			const csvResult = await this.AttachmentController.formatAttachmentToCSV(req.body.name);
 			const csvStream = format({ headers: true });
 
 			res.setHeader('Content-disposition', `attachment; filename=${req.body.name}.csv`);
 			res.set('Content-Type', 'text/csv');
 
+			if (!csvResult) {
+				throw new BaseError(
+					this.catchError("error", `Given Attachment Does Not Specify Requirements (Leak of Data). Attachment Name : ${req.body.name}`),
+					'Not Found',
+					404,
+					'Not Found Error'
+				)
+			}
 			// Write the headers to the CSV file
-			csvStream.write(headers);
+			csvStream.write(csvResult.headers);
 
 			// Write the data to the CSV file
-			data.forEach((row: any) => {
+			csvResult.data.forEach((row: any) => {
 				csvStream.write(row);
 			});
 
 			// End the CSV stream and pipe it to the response
 			csvStream.end();
-			res.attachment(`${req.body.name}.csv`);
+			res.attachment(`${req.body.name}`);
 			res.set('Content-Type', 'text/csv');
 			csvStream.pipe(res);
-		} catch (error: any) {
-			this.logger.error(error.message);
-			next(
-				new BaseError(
-					this.catchError(error, 'Internal Server Error'),
-					'Cannot Generate Parameters from Given Attachment',
-					500,
-					'Internal Server Error'
-				)
-			);
+		} catch (error) {
+			this.handleError(error, next)
 		}
 	}
 	initRoutes(): void {

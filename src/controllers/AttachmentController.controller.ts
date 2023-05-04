@@ -6,6 +6,7 @@ import { IAttachment } from '../utils/interfaces/ILogic/IAttachment.interface';
 import MLModelInputsConts from '../utils/constants/MLModelInput.constants';
 import { MLCSVRow } from '../utils/types/MLCSVRow.type';
 import { write } from '@fast-csv/format';
+import BaseError from '../utils/classes/BaseErrorClass';
 
 export default class AttachmentController extends CommonClass {
 	constructor() {
@@ -16,35 +17,38 @@ export default class AttachmentController extends CommonClass {
 		try {
 			let attachment = new AttachmentModel(newAttachment);
 			await attachment.save();
-			this.logger.info('New Attachment Created');
+			this.infoLogger('New Attachment Created');
 			return attachment;
 		} catch (error) {
-			this.logger.info('%s happened with %s', 'error', new Error(this.catchError(error, 'Cannot Added new Attachment')));
-			throw new Error(this.catchError(error, 'Cannot Added new Attachment'));
+			let err = new Error(this.catchError(error, 'Cannot Added new Attachment'))
+			this.errorLogger(err);
+			throw err
 		}
 	}
-	async getAttachment(attachmentName: string): Promise<IAttachment | null> {
+	async getAttachment(attachmentName: string): Promise<IAttachment> {
 		try {
 			let attachment = await AttachmentModel.findOne({ path: attachmentName });
 			if (!attachment) {
-				return null;
+				throw new BaseError("Attachment Not Found", "Not Found", 404, "Attachment Not Found")
 			} else {
 				return attachment;
 			}
 		} catch (error) {
-			this.logger.info('%s happened with %s', 'error', new Error(this.catchError(error, 'Cannot read Attachment')));
-			throw new Error(this.catchError(error, 'Cannot read Attachment'));
+			this.errorLogger(error)
+			throw error
 		}
 	}
 	async analyzeAttachment(attachmentPath: PathLike): Promise<any> {
 		try {
 			let rawData = await getRawData(attachmentPath);
-
+			if (rawData.length < 2) {
+				throw new BaseError("Given attachment is empty", "Bad File", 422, "Bad Attachment Given")
+			}
 			let analyzedData = await processData(rawData);
-
 			return analyzedData;
 		} catch (error) {
-			throw new Error(this.catchError(error, 'Cannot Read Given Attachment'));
+			this.errorLogger(error);
+			throw error
 		}
 	}
 
@@ -54,7 +58,10 @@ export default class AttachmentController extends CommonClass {
 			const CSVRow = <MLCSVRow>{};
 
 			const attachment = await AttachmentModel.findOne({ path: attachmentName }).lean();
-			const directions = attachment.directions;
+			if (!attachment) {
+				throw new BaseError("Attachment Not Found", "Not Found", 404, "Attachment Not Found")
+			}
+			const directions = attachment!.directions;
 
 			const csvHeaders = ['destination_id', 'edge_id'];
 			Object.values(MLModelInputsConts).forEach((MLCONST) => {
@@ -85,6 +92,9 @@ export default class AttachmentController extends CommonClass {
 			});
 
 			return { headers: csvHeaders, data: CSVRowArray };
-		} catch (error) {}
+		} catch (error) {
+			this.errorLogger(error)
+			throw error
+		}
 	}
 }

@@ -1,12 +1,19 @@
+//Libraries and Packages
 import express, { Request, Response } from 'express';
+import cors from 'cors';
+import responseTime from 'response-time';
+
 import mongoSetup from './config/db/mongo';
-import { AttachmentRoutes } from './routes/AttachmentRoute/AttachmentRoute.route';
-import CommonClass from './utils/classes/CommonClass';
+
+//Middlewares
+import { errorMiddleware } from './middlewares/error/error.middleware';
 import { restResponseTimeHistogram, startMetricsServer } from './middlewares/prometheus/prom-metrics';
 
-import responseTime from 'response-time';
-import { errorMiddleware } from './middlewares/error/error.middleware';
-import cors from 'cors';
+//Routes
+import { AttachmentRoutes } from './routes/AttachmentRoute/AttachmentRoute.route';
+
+//Helpers and Others
+import CommonClass from './utils/classes/CommonClass';
 
 class App extends CommonClass {
 	private app: express.Application;
@@ -36,25 +43,13 @@ class App extends CommonClass {
 			})
 		);
 		this.app.use('/attachment', AttachmentRoutes);
-		this.app.get('/', (req: Request, res: Response, next) => {
+		this.app.get('/', (req: Request, res: Response) => {
 			res.json({
 				message: 'Hello World'
 			});
 		});
-		this.app.get('/deneme', async (req: Request, res: Response) => {
-			// let test = {
-			//     messageRealm: "deneme"
-			// }
-
-			// console.log(test);
-
-			// let deneme = new EdgeModel(test)
-			// let resp = await deneme.save();
-
-			res.status(200).json(31);
-		});
 		this.app.get('/stressTest', (req: Request, res: Response) => {
-			for (let i = 0; i < 9999999999; i++) {}
+			for (let i = 0; i < 9999999999; i++) { }
 			res.status(200).json({ message: 'Stress Test Done.' });
 		});
 	}
@@ -62,7 +57,7 @@ class App extends CommonClass {
 	private configApp() {
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
-		this.app.use(cors()) 
+		this.app.use(cors())
 		this.appPort = this.config.default.PORT || 3002;
 	}
 
@@ -88,7 +83,7 @@ class App extends CommonClass {
 			startMetricsServer();
 
 			if (this.config.NODE_ENV !== 'production') {
-				this.logger.log('info', `Smart Delta API is ONLINE at PORT : ${this.appPort}`);
+				this.infoLogger(`Smart Delta API is ONLINE at PORT : ${this.appPort}`);
 			}
 		});
 	}

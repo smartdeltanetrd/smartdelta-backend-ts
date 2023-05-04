@@ -1,5 +1,5 @@
 
-import { Router } from "express";
+import { Router, NextFunction } from "express";
 import CommonClass from "./CommonClass";
 
 export default class BaseRouterClass extends CommonClass {
@@ -14,6 +14,16 @@ export default class BaseRouterClass extends CommonClass {
 
     protected catchError(error: any, staticMessage: string) {
         return (error instanceof Error) ? error.message : staticMessage
+    }
+
+    protected handleError(error: any, next: NextFunction) {
+        this.errorLogger(error)
+
+        if (next) {
+            next(error)
+        } else {
+            throw error
+        }
     }
 
     initRoutes() {

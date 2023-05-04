@@ -6,9 +6,9 @@ export const errorMiddleware = async (err: BaseError, req: Request, res: Respons
 
     const errObj = {
         message: err.message,
-        statusCode: err.statusCode || 400,
-        type: err.type,
-        info: err.info
+        statusCode: err.statusCode || 500,
+        type: err.type || "Server Error",
+        info: err.info || "Internal Server Error"
     }
     res.status(errObj.statusCode).send(errObj);
 }
