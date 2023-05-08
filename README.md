@@ -54,7 +54,7 @@ This endpoint uploads a new CSV file.
 ```javascript
 {
   "owner" : "string",
-  "path : "string",
+  "path" : "string",
   "nodes" Array<Object>,
   "directions" : Array<Object>
 }
@@ -78,7 +78,7 @@ This endpoint gets attachment's information.
 ```javascript
 {
   "owner" : "string",
-  "path : "string",
+  "path" : "string",
   "nodes" Array<Object>,
   "directions" : Array<Object>
 }
@@ -90,7 +90,7 @@ This endpoint gets attachment's information.
 
 #### Generate CSV
   ```http
-  POST /attachment/generate-csv
+  GET /attachment/generate-csv
 ```
 This endpoint generates CSV file for Machine Learning Model
 
