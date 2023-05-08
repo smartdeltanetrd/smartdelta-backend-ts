@@ -48,18 +48,81 @@ This endpoint uploads a new CSV file.
 
 | Body Parameter | Type     | Description                | Returns |
 | :-------- | :------- | :------------------------- | :------- |
-| `file` | `file/csv` | **Requested**. CSV file to analyze. | Attachment meta
+| `file` | `file/csv` | **Requested**. CSV file to analyze. | Object
 
-
-  ```http
-  POST /attachment/analyze
+#### Response Body From 
+```javascript
+{
+  "owner" : "string",
+  "path : "string",
+  "nodes" Array<Object>,
+  "directions" : Array<Object>
+}
 ```
-This endpoint uploads a new CSV file.
+
+---
+---
+---
+
+#### Get Attachment Meta
+  ```http
+  GET /attachment/read
+```
+This endpoint gets attachment's information.
 
 | Body Parameter | Type     | Description                | Returns
 | :-------- | :------- | :------------------------- | :-------------------------
-| `file` | `file/csv` | **Requested**. CSV file to analyze. | Array of JSONs
+| `name` | `string` | **Requested**. Name of the attachment . | Object
 
+#### Response Body From 
+```javascript
+{
+  "owner" : "string",
+  "path : "string",
+  "nodes" Array<Object>,
+  "directions" : Array<Object>
+}
+```
+
+---
+---
+---
+
+#### Generate CSV
+  ```http
+  POST /attachment/generate-csv
+```
+This endpoint generates CSV file for Machine Learning Model
+
+| Body Parameter | Type     | Description                | Returns
+| :-------- | :------- | :------------------------- | :-------------------------
+| `name` | `string` | **Requested**. Name of the attachment . | CSV File
+
+#### Response Body From 
+```javascript
+Headers in CSV file
+
+destination_id,
+edge_id,
+messageRealm,
+serviceAction,
+messageParams.subscriber,
+messageParams.calledMessageQueue,
+messageParams.type,
+messageParams.messageID,
+messageParams.correlationID,
+messageParams.transactionID,
+messageParams.originatingMS,
+messageParams.terminatingMS,
+serviceData.httpParams.statusCode,
+message_id_length,
+correlation_id_length,
+transaction_id_length
+```
+
+---
+---
+---
 
 ## Authors
 
