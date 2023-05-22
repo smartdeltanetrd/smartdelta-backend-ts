@@ -13,7 +13,7 @@ class AttachmentRouterClass extends BaseRouterClass {
 		this.AttachmentController = new AttachmentController();
 	}
 
-	//Error Handling Implemantations Done
+
 	async addNewAttachment(req: Request, res: Response, next: NextFunction) {
 		try {
 			// Check if file exist in request
@@ -26,6 +26,9 @@ class AttachmentRouterClass extends BaseRouterClass {
 			let attachment = await this.AttachmentController.analyzeAttachment(csvPath);
 
 			attachment['path'] = req.file.filename;
+			attachment['fileSize'] = (req.file.size / 1024).toFixed(2);
+			attachment['fileName'] = req.file.originalname;
+			console.log(req.file.originalname)
 			const result = await this.AttachmentController.uploadAttachment(attachment);
 
 			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
@@ -41,6 +44,28 @@ class AttachmentRouterClass extends BaseRouterClass {
 			let attachment = await this.AttachmentController.getAttachment(csvName);
 			res.status(200).send(attachment);
 		} catch (error: any) {
+			this.handleError(error, next)
+		}
+	}
+
+	async listAllAttachments(req: Request, res: Response, next: NextFunction) {
+		try {
+			let attachmentsList = await this.AttachmentController.listAllAttachments();
+			res.status(200).json(attachmentsList);
+		} catch (error) {
+			this.handleError(error, next)
+		}
+	}
+	async deleteAttachment(req: Request, res: Response, next: NextFunction) {
+		try {
+			const { id, ...rest } = req.query;
+			if (!id) {
+				throw new BaseError("ID should be provided", "Bad Request", 400, "Bad Request Performed")
+			}
+			await this.AttachmentController.deleteAttachment(id.toString());
+			res.status(202).json({ message: "Successfully Deleted" })
+
+		} catch (error) {
 			this.handleError(error, next)
 		}
 	}
@@ -78,10 +103,13 @@ class AttachmentRouterClass extends BaseRouterClass {
 			this.handleError(error, next)
 		}
 	}
+
 	initRoutes(): void {
 		this.router.post('/upload', uploadCsv.single('file'), this.addNewAttachment.bind(this));
 		this.router.get('/read', this.getAttachment.bind(this));
 		this.router.get('/generate-csv', this.getMLCSVData.bind(this));
+		this.router.get('/list', this.listAllAttachments.bind(this))
+		this.router.delete('/delete', this.deleteAttachment.bind(this));
 	}
 }
 

@@ -5,12 +5,21 @@ import { PathLike } from 'fs';
 import { IAttachment } from '../utils/interfaces/ILogic/IAttachment.interface';
 import MLModelInputsConts from '../utils/constants/MLModelInput.constants';
 import { MLCSVRow } from '../utils/types/MLCSVRow.type';
-import { write } from '@fast-csv/format';
 import BaseError from '../utils/classes/BaseErrorClass';
+
 
 export default class AttachmentController extends CommonClass {
 	constructor() {
 		super();
+	}
+	async listAllAttachments(): Promise<any> {
+		try {
+			let attachments = await AttachmentModel.find({}).select(['path', 'fileSize', 'createdAt', 'owner', 'fileName']);
+			console.log(attachments)
+			return attachments
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	async uploadAttachment(newAttachment: IAttachment): Promise<IAttachment> {
@@ -18,6 +27,7 @@ export default class AttachmentController extends CommonClass {
 			let attachment = new AttachmentModel(newAttachment);
 			await attachment.save();
 			this.infoLogger('New Attachment Created');
+			//Change to AttachmentMeta ! -----> YAY !
 			return attachment;
 		} catch (error: any) {
 			throw new BaseError(
@@ -28,6 +38,7 @@ export default class AttachmentController extends CommonClass {
 			);
 		}
 	}
+
 	async getAttachment(attachmentName: string): Promise<IAttachment> {
 		try {
 			let attachment = await AttachmentModel.findOne({ path: attachmentName });
@@ -35,6 +46,21 @@ export default class AttachmentController extends CommonClass {
 				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
 			} else {
 				return attachment;
+			}
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async deleteAttachment(attachmentId: string) {
+		//add prescript for delete to convert string to objectId
+		try {
+			
+			let attachment = await AttachmentModel.findOneAndDelete({ _id: attachmentId });
+			if (!attachment) {
+				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
+			} else {
+				return true;
 			}
 		} catch (error) {
 			throw error;
@@ -97,4 +123,5 @@ export default class AttachmentController extends CommonClass {
 			throw error;
 		}
 	}
+
 }
