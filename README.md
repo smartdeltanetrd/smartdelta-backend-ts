@@ -84,6 +84,65 @@ This endpoint gets attachment's information.
 }
 ```
 
+
+---
+---
+---
+
+#### Get Attachments List
+  ```http
+  GET /attachment/list
+```
+This endpoint gets attachments related to user
+
+| Body Parameter | Type     | Description                | Returns
+| :-------- | :------- | :------------------------- | :-------------------------
+| `none` | `none` | none  | Array of objects
+
+#### Response Body From 
+```javascript
+[
+  {
+    "path" : "string",
+    "fileSize" : "number",
+    "createdAt" : "timestamp",
+    "owner" : "string",
+    "fileName" : "string"
+  }
+...
+]
+```
+
+
+---
+---
+---
+
+#### Delete Attachment
+  ```http
+  DELETE /attachment/delete?id={id}
+```
+This endpoint deletes attachment via given ID
+
+| Body Parameter | Type     | Description                | Returns
+| :-------- | :------- | :------------------------- | :-------------------------
+| `none` | `none` | none  | Array of objects
+
+| Query Parameter | Type     | Description                | Returns
+| :-------- | :------- | :------------------------- | :-------------------------
+| `id` | `string` | **Requested** the ID of the attachment that wanted to delete   | Object
+
+#### Response Body From 
+```javascript
+[
+  {
+    "status" : "boolean",
+    "message" : "string
+  }
+...
+]
+```
+
 ---
 ---
 ---

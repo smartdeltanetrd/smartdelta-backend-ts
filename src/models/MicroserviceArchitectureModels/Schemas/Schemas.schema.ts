@@ -87,6 +87,19 @@ export const AttachmentSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	fileSize: {
+		type: Number,
+		required: true
+	},
+	fileName: {
+		type: String,
+		required: true
+	},
 	nodes: [NodesSchema],
 	directions: [DirectionSchema]
-});
+}, { timestamps: true });
+
+AttachmentSchema.pre('findOneAndDelete', function (this: any, next) {
+	this._conditions._id = new mongoose.Types.ObjectId(this._conditions._id)
+	next()
+})

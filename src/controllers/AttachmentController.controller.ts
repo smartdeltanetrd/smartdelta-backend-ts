@@ -5,12 +5,20 @@ import { PathLike } from 'fs';
 import { IAttachment } from '../utils/interfaces/ILogic/IAttachment.interface';
 import MLModelInputsConts from '../utils/constants/MLModelInput.constants';
 import { MLCSVRow } from '../utils/types/MLCSVRow.type';
-import { write } from '@fast-csv/format';
 import BaseError from '../utils/classes/BaseErrorClass';
 
 export default class AttachmentController extends CommonClass {
 	constructor() {
 		super();
+	}
+	async listAllAttachments(): Promise<any> {
+		try {
+			let attachments = await AttachmentModel.find({}).select(['path', 'fileSize', 'createdAt', 'owner', 'fileName']);
+			console.log(attachments);
+			return attachments;
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	async uploadAttachment(newAttachment: IAttachment): Promise<IAttachment> {
@@ -18,37 +26,53 @@ export default class AttachmentController extends CommonClass {
 			let attachment = new AttachmentModel(newAttachment);
 			await attachment.save();
 			this.infoLogger('New Attachment Created');
+			//Change to AttachmentMeta ! -----> YAY !
 			return attachment;
-		} catch (error) {
-			let err = new Error(this.catchError(error, 'Cannot Added new Attachment'))
-			this.errorLogger(err);
-			throw err
+		} catch (error: any) {
+			throw new BaseError(
+				error.message || 'Error happened while Adding Attachment',
+				'Attachment Could Not Added',
+				500,
+				'Uploading Error'
+			);
 		}
 	}
+
 	async getAttachment(attachmentName: string): Promise<IAttachment> {
 		try {
 			let attachment = await AttachmentModel.findOne({ path: attachmentName });
 			if (!attachment) {
-				throw new BaseError("Attachment Not Found", "Not Found", 404, "Attachment Not Found")
+				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
 			} else {
 				return attachment;
 			}
 		} catch (error) {
-			this.errorLogger(error)
-			throw error
+			throw error;
+		}
+	}
+
+	async deleteAttachment(attachmentId: string) {
+		try {
+			let attachment = await AttachmentModel.findOneAndDelete({ _id: attachmentId });
+			if (!attachment) {
+				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
+			} else {
+				return true;
+			}
+		} catch (error) {
+			throw error;
 		}
 	}
 	async analyzeAttachment(attachmentPath: PathLike): Promise<any> {
 		try {
 			let rawData = await getRawData(attachmentPath);
 			if (rawData.length < 2) {
-				throw new BaseError("Given attachment is empty", "Bad File", 422, "Bad Attachment Given")
+				throw new BaseError('Given attachment is empty', 'Bad File', 422, 'Bad Attachment Given');
 			}
 			let analyzedData = await processData(rawData);
 			return analyzedData;
 		} catch (error) {
-			this.errorLogger(error);
-			throw error
+			throw error;
 		}
 	}
 
@@ -59,7 +83,7 @@ export default class AttachmentController extends CommonClass {
 
 			const attachment = await AttachmentModel.findOne({ path: attachmentName }).lean();
 			if (!attachment) {
-				throw new BaseError("Attachment Not Found", "Not Found", 404, "Attachment Not Found")
+				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
 			}
 			const directions = attachment!.directions;
 
@@ -93,8 +117,7 @@ export default class AttachmentController extends CommonClass {
 
 			return { headers: csvHeaders, data: CSVRowArray };
 		} catch (error) {
-			this.errorLogger(error)
-			throw error
+			throw error;
 		}
 	}
 }
