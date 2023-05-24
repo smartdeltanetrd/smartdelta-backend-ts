@@ -7,7 +7,6 @@ import MLModelInputsConts from '../utils/constants/MLModelInput.constants';
 import { MLCSVRow } from '../utils/types/MLCSVRow.type';
 import BaseError from '../utils/classes/BaseErrorClass';
 
-
 export default class AttachmentController extends CommonClass {
 	constructor() {
 		super();
@@ -15,8 +14,8 @@ export default class AttachmentController extends CommonClass {
 	async listAllAttachments(): Promise<any> {
 		try {
 			let attachments = await AttachmentModel.find({}).select(['path', 'fileSize', 'createdAt', 'owner', 'fileName']);
-			console.log(attachments)
-			return attachments
+			console.log(attachments);
+			return attachments;
 		} catch (error) {
 			throw error;
 		}
@@ -53,9 +52,7 @@ export default class AttachmentController extends CommonClass {
 	}
 
 	async deleteAttachment(attachmentId: string) {
-		//add prescript for delete to convert string to objectId
 		try {
-			
 			let attachment = await AttachmentModel.findOneAndDelete({ _id: attachmentId });
 			if (!attachment) {
 				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
@@ -123,5 +120,4 @@ export default class AttachmentController extends CommonClass {
 			throw error;
 		}
 	}
-
 }
