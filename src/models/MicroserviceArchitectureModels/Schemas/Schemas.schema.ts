@@ -78,28 +78,45 @@ export const NodesSchema = new mongoose.Schema({
 	data: Object
 });
 
-export const AttachmentSchema = new mongoose.Schema({
-	owner: {
-		type: String,
-		default: 'admin'
+export const AttachmentSchema = new mongoose.Schema(
+	{
+		owner: {
+			type: String,
+			default: 'admin'
+		},
+		path: {
+			type: String,
+			required: true
+		},
+		fileSize: {
+			type: Number,
+			required: true
+		},
+		fileName: {
+			type: String,
+			required: true
+		},
+		nodes: [NodesSchema],
+		directions: [DirectionSchema],
+		isDeleted: {
+			type: Boolean,
+			default: false
+		}
 	},
-	path: {
-		type: String,
-		required: true
-	},
-	fileSize: {
-		type: Number,
-		required: true
-	},
-	fileName: {
-		type: String,
-		required: true
-	},
-	nodes: [NodesSchema],
-	directions: [DirectionSchema]
-}, { timestamps: true });
+	{ timestamps: true }
+);
 
 AttachmentSchema.pre('findOneAndDelete', function (this: any, next) {
-	this._conditions._id = new mongoose.Types.ObjectId(this._conditions._id)
-	next()
-})
+	this._conditions._id = new mongoose.Types.ObjectId(this._conditions._id);
+	next();
+});
+AttachmentSchema.pre('find', function (this: any) {
+	this.where({ isDeleted: false });
+});
+AttachmentSchema.pre('findOne', function (this: any) {
+	this.where({ isDeleted: false });
+});
+
+AttachmentSchema.pre('findOneAndUpdate', function (this: any) {
+	this.where({ isDeleted: false });
+});
