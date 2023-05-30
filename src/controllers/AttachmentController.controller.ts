@@ -53,7 +53,8 @@ export default class AttachmentController extends CommonClass {
 
 	async deleteAttachment(attachmentId: string) {
 		try {
-			let attachment = await AttachmentModel.findOneAndDelete({ _id: attachmentId });
+			// let attachment = await AttachmentModel.findOneAndDelete({ _id: attachmentId });
+			let attachment = await AttachmentModel.findOneAndUpdate({ _id: attachmentId }, { isDeleted: true }, { new: true });
 			if (!attachment) {
 				throw new BaseError('Attachment Not Found', 'Not Found', 404, 'Attachment Not Found');
 			} else {
