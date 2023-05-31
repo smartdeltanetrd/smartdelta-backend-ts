@@ -76,11 +76,9 @@ export default class AttachmentController extends CommonClass {
 			throw error;
 		}
 	}
-
 	async formatAttachmentToCSV(attachmentName: string): Promise<any> {
 		try {
 			const CSVRowArray: Array<MLCSVRow> = [];
-			const CSVRow = <MLCSVRow>{};
 
 			const attachment = await AttachmentModel.findOne({ path: attachmentName }).lean();
 			if (!attachment) {
@@ -94,9 +92,9 @@ export default class AttachmentController extends CommonClass {
 			});
 
 			directions.forEach((direction) => {
-				CSVRow.destination_id = direction._id?.toString();
-
 				direction.edges.forEach((edge) => {
+					let CSVRow = <MLCSVRow>{};
+					CSVRow.destination_id = direction._id?.toString();
 					CSVRow.edge_id = edge._id?.toString();
 					CSVRow.messageRealm = edge.messageRealm;
 					CSVRow.serviceAction = edge.serviceAction;
@@ -115,7 +113,6 @@ export default class AttachmentController extends CommonClass {
 					CSVRowArray.push(CSVRow);
 				});
 			});
-
 			return { headers: csvHeaders, data: CSVRowArray };
 		} catch (error) {
 			throw error;
