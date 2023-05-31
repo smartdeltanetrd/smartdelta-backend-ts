@@ -43,7 +43,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 			this.handleError(error, next);
 		}
 	}
-
 	async getAttachment(req: Request, res: Response, next: NextFunction) {
 		try {
 			let csvName = req.body.name;
@@ -53,7 +52,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 			this.handleError(error, next);
 		}
 	}
-
 	async listAllAttachments(req: Request, res: Response, next: NextFunction) {
 		try {
 			let attachmentsList = await this.AttachmentController.listAllAttachments();
@@ -74,7 +72,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 			this.handleError(error, next);
 		}
 	}
-
 	async getMLCSVData(req: Request, res: Response, next: NextFunction) {
 		try {
 			const csvResult = await this.AttachmentController.formatAttachmentToCSV(req.body.name);
@@ -111,7 +108,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 			this.handleError(error, next);
 		}
 	}
-
 	initRoutes(): void {
 		this.router.post('/upload', uploadCsv.single('file'), this.addNewAttachment.bind(this));
 		this.router.get('/read', this.getAttachment.bind(this));
