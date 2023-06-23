@@ -34,7 +34,6 @@ class AttachmentRouterClass extends BaseRouterClass {
 			attachment['path'] = req.file.filename;
 			attachment['fileSize'] = (req.file.size / 1024).toFixed(2);
 			attachment['fileName'] = req.file.originalname;
-			console.log(req.file.originalname);
 			const result = await this.AttachmentController.uploadAttachment(attachment);
 
 			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
