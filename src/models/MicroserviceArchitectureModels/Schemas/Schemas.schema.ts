@@ -96,6 +96,10 @@ export const AttachmentSchema = new mongoose.Schema(
 			type: String,
 			required: true
 		},
+		fileDescription:{
+			type:String,
+			required: true
+		},
 		nodes: [NodesSchema],
 		directions: [DirectionSchema],
 		isDeleted: {

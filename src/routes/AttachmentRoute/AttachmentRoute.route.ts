@@ -5,6 +5,7 @@ import uploadCsv from '../../libs/fileUpload/multer.function';
 import path from 'path';
 import BaseError from '../../utils/classes/BaseErrorClass';
 import { format } from '@fast-csv/format';
+import { IAttachment } from '../../utils/interfaces/ILogic/IAttachment.interface';
 
 class AttachmentRouterClass extends BaseRouterClass {
 	private AttachmentController: AttachmentController;
@@ -30,10 +31,11 @@ class AttachmentRouterClass extends BaseRouterClass {
 			let csvPath = path.join(process.cwd(), this.config.MULTER_CSV_DIR || 'src/data/uploads/csvData', req.file?.filename);
 
 			let attachment = await this.AttachmentController.analyzeAttachment(csvPath);
-
+			let { file_desc, ...rest } = req.body;
 			attachment['path'] = req.file.filename;
 			attachment['fileSize'] = (req.file.size / 1024).toFixed(2);
 			attachment['fileName'] = req.file.originalname;
+			attachment['fileDescription'] = file_desc;
 			const result = await this.AttachmentController.uploadAttachment(attachment);
 
 			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');

@@ -25,7 +25,6 @@ export default class AttachmentController extends CommonClass {
 			let attachment = new AttachmentModel(newAttachment);
 			await attachment.save();
 			this.infoLogger('New Attachment Created');
-			//Change to AttachmentMeta ! -----> YAY !
 			return attachment;
 		} catch (error: any) {
 			throw new BaseError(
