@@ -14,7 +14,6 @@ export default class AttachmentController extends CommonClass {
 	async listAllAttachments(): Promise<any> {
 		try {
 			let attachments = await AttachmentModel.find({}).select(['path', 'fileSize', 'createdAt', 'owner', 'fileName']);
-			console.log(attachments);
 			return attachments;
 		} catch (error) {
 			throw error;
