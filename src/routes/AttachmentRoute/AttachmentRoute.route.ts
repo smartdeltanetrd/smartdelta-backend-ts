@@ -28,17 +28,23 @@ class AttachmentRouterClass extends BaseRouterClass {
 				return;
 			}
 			let csvPath = path.join(process.cwd(), this.config.MULTER_CSV_DIR || 'src/data/uploads/csvData', req.file?.filename);
-
 			let attachment = await this.AttachmentController.analyzeAttachment(csvPath);
+			console.log(attachment.directions[0].edges[0]);
+			const filePathName = path.basename(csvPath);
 
 			attachment['path'] = req.file.filename;
 			attachment['fileSize'] = (req.file.size / 1024).toFixed(2);
 			attachment['fileName'] = req.file.originalname;
-			console.log(req.file.originalname);
+
 			const result = await this.AttachmentController.uploadAttachment(attachment);
 
+		//Comment out below code to enable training
+		/*	const { trainingResponse } = await this.AttachmentController.trainModelWithAttachment(filePathName);
+		*/
 			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
-			res.status(201).json(result);
+			res.status(201).json({
+				message: 'Training and uploading completed successfully.',
+				result });
 		} catch (error) {
 			this.handleError(error, next);
 		}
@@ -76,17 +82,18 @@ class AttachmentRouterClass extends BaseRouterClass {
 	}
 	async getMLCSVData(req: Request, res: Response, next: NextFunction) {
 		try {
-			const csvResult = await this.AttachmentController.formatAttachmentToCSV(req.body.name);
+			
+			const csvResult = await this.AttachmentController.formatAttachmentToCSV(req.query.name?.toString() ?? '');
 			const csvStream = format({ headers: true });
 
-			res.setHeader('Content-disposition', `attachment; filename=${req.body.name}.csv`);
+			res.setHeader('Content-disposition', `attachment; filename=${req.query.name}.csv`);
 			res.set('Content-Type', 'text/csv');
 
 			if (!csvResult) {
 				throw new BaseError(
 					this.catchError(
 						'error',
-						`Given Attachment Does Not Specify Requirements (Leak of Data). Attachment Name : ${req.body.name}`
+						`Given Attachment Does Not Specify Requirements (Leak of Data). Attachment Name : ${req.query.name}`
 					),
 					'Not Found',
 					404,
@@ -103,7 +110,7 @@ class AttachmentRouterClass extends BaseRouterClass {
 
 			// End the CSV stream and pipe it to the response
 			csvStream.end();
-			res.attachment(`${req.body.name}`);
+			res.attachment(`${req.query.name}`);
 			res.set('Content-Type', 'text/csv');
 			csvStream.pipe(res);
 		} catch (error) {
@@ -113,7 +120,7 @@ class AttachmentRouterClass extends BaseRouterClass {
 	initRoutes(): void {
 		this.router.post('/upload', uploadCsv.single('file'), this.addNewAttachment.bind(this));
 		this.router.get('/read/:name', this.getAttachment.bind(this));
-		this.router.get('/generate-csv', this.getMLCSVData.bind(this));
+		this.router.get('/generate-csv/:name', this.getMLCSVData.bind(this));
 		this.router.get('/list', this.listAllAttachments.bind(this));
 		this.router.delete('/delete', this.deleteAttachment.bind(this));
 	}

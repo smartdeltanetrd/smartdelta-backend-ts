@@ -4,6 +4,9 @@ export const EdgeSchema = new mongoose.Schema({
 	timestamp: {
 		type: String
 	},
+	version:{
+		type: String
+	},
 	level: {
 		type: String
 	},
@@ -54,6 +57,12 @@ export const EdgeSchema = new mongoose.Schema({
 	},
 	transactionIDLen: {
 		type: String
+	},
+	protocol: {
+		type: String
+	},
+	latency: {
+		type: String || undefined
 	}
 });
 

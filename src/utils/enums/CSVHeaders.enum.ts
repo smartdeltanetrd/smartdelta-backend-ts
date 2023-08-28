@@ -14,7 +14,8 @@ export enum MessageEnum {
     MESSAGE_REALM = "messageRealm",
     SERVICE_ACTION = "serviceAction",
     SERVICE_DATA = "serviceData",
-    MESSAGE_PARAMS = "messageParams"
+    MESSAGE_PARAMS = "messageParams",
+	VERSION = "version",
 }
 
 export enum MessageParamsEnum {

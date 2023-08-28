@@ -7,6 +7,10 @@ import MLModelInputsConts from '../utils/constants/MLModelInput.constants';
 import { MLCSVRow } from '../utils/types/MLCSVRow.type';
 import BaseError from '../utils/classes/BaseErrorClass';
 
+import axios from 'axios';
+import { format } from '@fast-csv/format';
+import FormData from 'form-data';
+
 export default class AttachmentController extends CommonClass {
 	constructor() {
 		super();
@@ -64,6 +68,7 @@ export default class AttachmentController extends CommonClass {
 			throw error;
 		}
 	}
+
 	async analyzeAttachment(attachmentPath: PathLike): Promise<any> {
 		try {
 			let rawData = await getRawData(attachmentPath);
@@ -76,9 +81,11 @@ export default class AttachmentController extends CommonClass {
 			throw error;
 		}
 	}
+
 	async formatAttachmentToCSV(attachmentName: string): Promise<any> {
 		try {
 			const CSVRowArray: Array<MLCSVRow> = [];
+
 
 			const attachment = await AttachmentModel.findOne({ path: attachmentName }).lean();
 			if (!attachment) {
@@ -113,9 +120,49 @@ export default class AttachmentController extends CommonClass {
 					CSVRowArray.push(CSVRow);
 				});
 			});
-			return { headers: csvHeaders, data: CSVRowArray };
-		} catch (error) {
-			throw error;
+
+			const csvStream = format({ headers: true });
+			// Write the headers to the CSV file
+			csvStream.write(csvHeaders);
+
+			// Write the data to the CSV file
+			CSVRowArray.forEach((row: any) => {
+				csvStream.write(row);
+			});
+
+			// End the CSV stream and pipe it to the response
+			csvStream.end();
+
+			return csvStream;
+		}  catch (error: any) {
+			throw new BaseError(
+				error.message || 'Error happened while formating attachment to CSV',
+				'Model Could Not Be Formatted to CSV',
+				500,
+				'Training Error'
+			);
+		}
+	}
+
+	async trainModelWithAttachment(attachmentPath: string): Promise<any> {
+		try {
+			const csvStream = await this.formatAttachmentToCSV(attachmentPath);
+			const formData = new FormData();
+			formData.append('file', csvStream, 'data.csv');
+
+			const { data } = await axios.post('http://127.0.0.1:5003/train', formData, {
+				headers: formData.getHeaders(),
+			});
+
+			// Return the response from the ML Service
+			return { trainingResponse: data };
+		} catch (error: any) {
+			throw new BaseError(
+				error.message || 'Error happened while training model',
+				'Model Could Not Be Trained with the Attachment',
+				500,
+				'Training Error'
+			);
 		}
 	}
 }

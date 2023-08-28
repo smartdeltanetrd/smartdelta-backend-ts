@@ -6,6 +6,9 @@ import { CONSTANTS } from '../../utils/Constants.constant';
 import { IAnalyze } from '../../utils/interfaces/ILogic/IAnalyze';
 import { NodeType } from '../../utils/types/NodeType.type';
 import BaseError from '../../utils/classes/BaseErrorClass';
+import { Console } from 'console';
+import { calculateLatency } from './utils/csvParser.latency.utils';
+import { detectProtocolFromMessage } from './utils/csvParser.detectProtcol';
 
 export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
 	return new Promise((resolve, reject) => {
@@ -26,7 +29,8 @@ export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
 
 export async function processData(rawDataChunk: any[]) {
 	// Only get requested columns from csv. Level should be INTERNALTRACE
-
+	let transactionTimestamps: Map<string, { request?: number, response?: number }> = new Map();
+	// To store request timestamps by transactionId
 	const columnNamesRow = await extractColumnParams(rawDataChunk.shift(), ColumnEnum);
 
 	let cleanRows: any[] = new Array();
@@ -36,8 +40,13 @@ export async function processData(rawDataChunk: any[]) {
 	rawDataChunk.forEach((record) => {
 		if (record[columnNamesRow.get(ColumnEnum.LEVEL_CELL_NAME)!].toLowerCase() === LevelDataEnum.LEVEL_INTERNAL_TRACE) {
 			let parsedRow = parseLogRow(record, columnNamesRow);
+			let messageString: string = record[columnNamesRow.get(ColumnEnum.MESSAGE_CELL_NAME)!].trim();
+			
+			let protocol = detectProtocolFromMessage(messageString);
+			parsedRow.set('protocol', protocol);
 
-			//map to array
+			calculateLatency(parsedRow, transactionTimestamps);
+		
 			cleanRows.push(Object.fromEntries(parsedRow));
 		}
 	});
@@ -114,6 +123,13 @@ function flatJSONObject(flattenedRowObj: Map<string, any>) {
 		? flattenedRowObj.set(
 			EdgePropConts['messageRealm'],
 			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.MESSAGE_REALM]
+		)
+		: '';
+	//version 
+	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.VERSION]
+		? flattenedRowObj.set(
+			EdgePropConts['version'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.VERSION]
 		)
 		: '';
 

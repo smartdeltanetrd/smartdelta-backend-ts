@@ -18,6 +18,7 @@ export const MLModelInputsConts: { [key: string]: string } = {
 export const EdgePropConts: { [key: string]: string } = {
 	method: 'method',
 	service: 'service',
+	version: 'version',
 	messageRealm: 'messageRealm',
 	serviceAction: 'serviceAction',
 	subscriber: 'subscriber',
