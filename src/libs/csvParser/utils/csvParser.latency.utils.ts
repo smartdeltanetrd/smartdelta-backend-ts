@@ -25,6 +25,7 @@ function setLatency(parsedRow: Map<string, any>, timestamps: Timestamps) {
 	parsedRow.set('latency', latency + 'ms');
 }
 
+// Calculate the latency of  transaction in request type
 export function calculateLatency(parsedRow: Map<string, any>, transactionTimestamps: Map<string, any>) {
 	const transactionId = parsedRow.get(EdgePropConts['transactionID']);
 	const timestamp = new Date(parsedRow.get('timestamp')).getTime();
@@ -39,3 +40,16 @@ export function calculateLatency(parsedRow: Map<string, any>, transactionTimesta
 	setLatency(parsedRow, timestamps);
 	transactionTimestamps.set(transactionId, timestamps);
 }
+
+export function setMissingPairLatency(rows: any[]) {
+    rows.forEach(row => {
+        if (row[EdgePropConts['type']] === 'request' && row['latency'] === '-') {
+            row['latency'] = 'Missing Pair';
+        }
+    });
+}
+
+
+
+
+

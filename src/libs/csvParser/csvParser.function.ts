@@ -7,7 +7,7 @@ import { IAnalyze } from '../../utils/interfaces/ILogic/IAnalyze';
 import { NodeType } from '../../utils/types/NodeType.type';
 import BaseError from '../../utils/classes/BaseErrorClass';
 import { Console } from 'console';
-import { calculateLatency } from './utils/csvParser.latency.utils';
+import { calculateLatency, setMissingPairLatency } from './utils/csvParser.latency.utils';
 import { detectProtocolFromMessage } from './utils/csvParser.detectProtcol';
 
 export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
@@ -29,8 +29,9 @@ export function getRawData(csvPath: fs.PathLike): Promise<any[]> {
 
 export async function processData(rawDataChunk: any[]) {
 	// Only get requested columns from csv. Level should be INTERNALTRACE
+
+	// To store request timestamps by transactionId while traversing
 	let transactionTimestamps: Map<string, { request?: number, response?: number }> = new Map();
-	// To store request timestamps by transactionId
 	const columnNamesRow = await extractColumnParams(rawDataChunk.shift(), ColumnEnum);
 
 	let cleanRows: any[] = new Array();
@@ -50,6 +51,9 @@ export async function processData(rawDataChunk: any[]) {
 			cleanRows.push(Object.fromEntries(parsedRow));
 		}
 	});
+
+	// Some transactions may not have response. So we need to set missing pair latency at the end of traversal
+	setMissingPairLatency(cleanRows);
 	analyzedAttachment = extractServiceDiagram(cleanRows);
 
 	return analyzedAttachment;
