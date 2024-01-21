@@ -11,6 +11,7 @@
   "author": "Omer Dincer - Orion Innovation",
   "license": "MIT",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.11.0",
     "@fast-csv/format": "^4.3.5",
     "@kubernetes/client-node": "^0.18.1",
     "axios": "^1.4.0",

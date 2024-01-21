@@ -1,5 +1,6 @@
 //Libraries and Packages
 import express, { Request, Response } from 'express';
+import session  from 'express-session';
 import cors from 'cors';
 import responseTime from 'response-time';
 
@@ -14,6 +15,9 @@ import { AttachmentRoutes } from './routes/AttachmentRoute/AttachmentRoute.route
 
 //Helpers and Others
 import CommonClass from './utils/classes/CommonClass';
+import { KubernetesRoutes } from './routes/KubernetesRoute/KubernetesRoute';
+import { AnalysisRoutes } from './routes/AnalysisRoute/AnalysisRoute';
+import { ElasticApmRoutes } from './routes/ElasticApmRoute/ElasticApmRoute';
 
 class App extends CommonClass {
 	private app: express.Application;
@@ -42,7 +46,10 @@ class App extends CommonClass {
 				}
 			})
 		);
+		this.app.use('/elastic', ElasticApmRoutes);
 		this.app.use('/attachment', AttachmentRoutes);
+		this.app.use('/analysis', AnalysisRoutes);
+		this.app.use('/k8s', KubernetesRoutes);
 		this.app.get('/', (req: Request, res: Response) => {
 			res.json({
 				message: 'Hello World'
@@ -55,8 +62,16 @@ class App extends CommonClass {
 	}
 
 	private configApp() {
-		this.app.use(express.json());
+		this.app.use(express.json({ limit: '20mb' }));
 		this.app.use(express.urlencoded({ extended: true }));
+		this.app.use(session({
+			secret: 'my-secret-key',
+			resave: false,
+			saveUninitialized: false,
+			cookie: {
+			  maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
+			},
+		  }));
 		this.app.use(cors())
 		this.appPort = this.config.default.PORT || 3002;
 	}

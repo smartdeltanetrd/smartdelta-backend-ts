@@ -1,4 +1,14 @@
 export type MLCSVRow = {
+	class?: string;
+	classKeyword?: string;
+	method?: string;
+	device?: string;
+	level?: string;
+	service?: string;
+	terminatingMS?: string;
+	originatingMS?: string;
+	calledMessageQueue?: string;
+	statusCode?: string;
 	destination_id?: string;
 	edge_id?: string;
 	messageRealm?: string;

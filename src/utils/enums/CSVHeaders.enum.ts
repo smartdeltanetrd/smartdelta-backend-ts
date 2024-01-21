@@ -4,6 +4,8 @@ export enum ColumnEnum {
     SERVICE_CELL_NAME = "service",
     TIMESTAMP_COLUMN_NAME = "@timestamp",
     MESSAGE_CELL_NAME = "message",
+	CLASS = "class",
+	CLASS_KEYWORD = "Class.keyword"
 }
 
 export enum LevelDataEnum {
@@ -15,7 +17,8 @@ export enum MessageEnum {
     SERVICE_ACTION = "serviceAction",
     SERVICE_DATA = "serviceData",
     MESSAGE_PARAMS = "messageParams",
-	VERSION = "version",
+	VERSION = "version"
+
 }
 
 export enum MessageParamsEnum {

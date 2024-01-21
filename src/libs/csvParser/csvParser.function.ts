@@ -137,6 +137,22 @@ function flatJSONObject(flattenedRowObj: Map<string, any>) {
 		)
 		: '';
 
+	//class
+	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[ColumnEnum.CLASS]
+		? flattenedRowObj.set(
+			EdgePropConts['class'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[ColumnEnum.CLASS]
+		)
+		: '';
+
+	//class keyword
+	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[ColumnEnum.CLASS]
+		? flattenedRowObj.set(
+			EdgePropConts['classKeyword'],
+			flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[ColumnEnum.CLASS_KEYWORD]
+		)
+		: '';
+	
 	//serviceAction
 	flattenedRowObj.get(ColumnEnum.MESSAGE_CELL_NAME)[MessageEnum.SERVICE_ACTION]
 		? flattenedRowObj.set(

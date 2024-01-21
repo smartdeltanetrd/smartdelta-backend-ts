@@ -1,4 +1,6 @@
 const MLModelInputsConts: { [key: string]: string } = {
+	class: 'class',
+	classKeyword: 'Class.keyword',
 	messageRealm: 'messageRealm',
 	serviceAction: 'serviceAction',
 	subscriber: 'messageParams.subscriber',

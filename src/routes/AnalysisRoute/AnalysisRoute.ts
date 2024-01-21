@@ -17,8 +17,18 @@ class AnalysisRouterClass extends BaseRouterClass {
 		  this.handleError(error, next);
 		}
 	  }
+	  async submitToCompareFiles(req: Request, res: Response, next: NextFunction) {
+		try {
+		    let result = await this.AnalysisController.compareLogFiles(req, res);
+        console.log(result);
+        res.status(200).send(result);
+		} catch (error) {
+		  this.handleError(error, next);
+		}
+	  }
 	initRoutes(): void {
 		this.router.get('/predict-resource', this.getResourcePrediction.bind(this));
+		this.router.post('/compare-logs', this.submitToCompareFiles.bind(this));
 	}
 }
 
