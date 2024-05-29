@@ -1,15 +1,19 @@
 import { Document } from "mongoose";
 
 export interface IElasticIntegration extends Document {
-	cloud: {
-		id: String;
-		provider: String;
-		regions: String;
-	},
+	credentials: {
+		cloud: {
+			id: String;
+		};
+		auth: {
+			username: String;
+			password: String;
+			  };
+	};
+	provider: String;
+	regions: String;
 	name: String;
 	version: String;
-	auth: {
-	username: String;
-	  }
+
 }
 

@@ -1,17 +1,20 @@
 import mongoose from 'mongoose';
 
 export const ElasticIntegrationSchema = new mongoose.Schema({
-	cloud: {
-		id: String,
-		provider: String,
-		region: String,
+	credentials: {
+		cloud: {
+			id: String,
+		},
+		auth: {
+			username: String,
+			password: String
+			  }
 	},
 	name: String,
 	version: String,
-	auth: {
-	username: String,
-	password: String
-	  }
+	provider: String,
+	region: String,
+
 	});
 
 export const EdgeSchema = new mongoose.Schema({
