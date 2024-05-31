@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "description": "SmartDeltaApi-NodeJs-Express-Typescript",
   "main": "server.ts",
+  "type": "commonjs",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "nodemon ./server.ts",
+    "start": "node  ./server.ts",
+	"dev": "nodemon --watch './**/*.ts' --exec 'ts-node' ./server.ts",
     "build": "tsc"
   },
   "author": "Omer Dincer - Orion Innovation",
@@ -26,6 +27,7 @@
     "multer": "1.4.5-lts.1",
     "openai": "^4.28.4",
     "prom-client": "^14.2.0",
+    "punycode": "^2.3.1",
     "python-shell": "^5.0.0",
     "response-time": "^2.3.2",
     "winston": "^3.8.2"
