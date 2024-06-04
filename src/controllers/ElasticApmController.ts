@@ -125,7 +125,7 @@ export default class ElasticApmController extends CommonClass {
 					query: {
 						range: {
 							'@timestamp': {
-								gte: 'now-7d/d',
+								gte: 'now-30d/d',
 								lte: 'now/d'
 							}
 						}
@@ -150,21 +150,21 @@ export default class ElasticApmController extends CommonClass {
   // Process the response and retrieve the APM logs
   const apmLogs = response.hits.hits.map((hit:any) => hit._source);
   //
-  const res = await client.search({
+  /*const res = await client.search({
 	index: '.ds-traces-apm-default-2024.04.07-000004',
 	//.ds-traces-apm-default-2024.02.07-000001 **
 	//metrics-endpoint.metadata_current_default
 	//
 	//.ds-metrics-apm.service_destination.1m-default-2024.02.07-000001
   });
-  
+  */
 
-  const Logs = res.hits.hits.map((hit:any) => hit._source)
+ /* const Logs = response.hits.hits.map((hit:any) => hit._source)*/
 
   //
 
   console.log("HERE IS APM LOGS: ")
-  console.log(JSON.stringify(Logs));
+
   const uniqueServicesMap = new Map();
  apmLogs.forEach(log => {
     const serviceName = log.service.name;
