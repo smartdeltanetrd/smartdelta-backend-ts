@@ -6,6 +6,27 @@ import { Client } from '@elastic/elasticsearch';
 import { IElasticIntegration } from '../utils/interfaces/IModels/IElastic.interface';
 import ElasticIntegrationModel from '../models/UserModel/ElasticIntegrationModel';
 
+interface APMLog {
+	service: {
+	  name: string;
+	  [key: string]: any; // Adjust this if you have specific fields
+	};
+	[key: string]: any; // Adjust this if you have specific fields
+  }
+  
+  interface SearchResponse {
+	hits: {
+	  hits: Array<{
+		_source: APMLog;
+	  }>;
+	};
+  }
+  
+  interface CountResponse {
+	count: number;
+  }
+  
+
 interface FaasInfo {
     duration: number;
     billed_duration: number;
@@ -62,30 +83,57 @@ export default class ElasticApmController extends CommonClass {
 			console.log('CREDENTIALS: ', credentials);
 			const client = new Client(credentials);
 
-      const response = await client.search({
-        index: '.ds-metrics-apm.internal-default-2024.02.07-000001',
-      });
+			const response = await client.search({
+				index: '.ds-metrics-apm.internal-default-*',
+				body: {
+				  query: {
+					bool: {
+					  must: [
+						{ match: { 'service.name': serviceName } }, // Directly filter by service name
+						{
+						  range: {
+							'@timestamp': {
+							  gte: 'now-30d/d', // Adjust the time range as needed
+							  lte: 'now',
+							},
+						  },
+						},
+					  ],
+					},
+				  },
+				  size: 1000, // Adjust size based on expected results
+				  sort: [{ '@timestamp': { order: 'desc' } }],
+				},
+			  });
+		  
 
-	  
+	  const resp = await client.cat.indices({
+		index: "*",
+		v: true,
+		s: "index"
+	  });
+
+	  console.log('CAT INDICES: ');
+console.log(resp);
 	
   // Process the response and retrieve the corresponed service s APM logs
   const apmLogs = response.hits.hits.map((hit:any) => hit._source);
-  const filteredLogs = apmLogs.filter(log => log.service && log.service.name === serviceName);
   const sparklineData = {
-	functionDuration: filteredLogs.map((log: any) => ({
+	functionDuration: apmLogs.map((log) => ({
 	  timestamp: log['@timestamp'],
-	  duration: log.faas.duration,
+	  duration: log.faas?.duration || 0,
 	})),
-	billedDuration: filteredLogs.map((log: any) => ({
+	billedDuration: apmLogs.map((log) => ({
 	  timestamp: log['@timestamp'],
-	  billedDuration: log.faas.billed_duration,
+	  billedDuration: log.faas?.billed_duration || 0,
 	})),
-	memoryUsage: filteredLogs.map((log: any) => ({
+	memoryUsage: apmLogs.map((log) => ({
 	  timestamp: log['@timestamp'],
-	  freeMemory: log.system.memory.actual.free,
-	  totalMemory: log.system.memory.total,
+	  freeMemory: log.system?.memory?.actual?.free || 0,
+	  totalMemory: log.system?.memory?.total || 0,
 	})),
   };
+  console.log("SPARKLINE DATA::")
  console.log( apmLogs);
  
 /*
@@ -119,65 +167,80 @@ export default class ElasticApmController extends CommonClass {
 		try {
 			const client = new Client(credentials);
 
-			const response = await client.search({
-				index: '.ds-metrics-apm.internal-default-*',
-				body: {
-					query: {
-						range: {
-							'@timestamp': {
-								gte: 'now-30d/d',
-								lte: 'now/d'
-							}
-						}
-					}
-				}
+			// Step 1: Use Count API to get the number of matched documents
+			const countResponse: CountResponse = await client.count({
+			  index: '.ds-metrics-apm.internal-default-*',
+			  body: {
+				query: {
+				  range: {
+					'@timestamp': {
+					  gte: 'now-160d/d',
+					  lte: 'now/d',
+					},
+				  },
+				},
+			  },
 			});
-
-			
-		/*	const resp = await client.cat.indices({
-				index: "*",
-				v: true,
-				s: "index"
+		
+			console.log('Number of matched documents:', countResponse.count);
+		
+			// Initialize Point in Time (PIT) for consistent search results
+			const pitResponse = await client.openPointInTime({
+			  index: '.ds-metrics-apm.internal-default-*',
+			  keep_alive: '1m', // Keep the PIT open for 1 minute
+			});
+		
+			const pitId = pitResponse.id;
+		
+			let searchAfter = undefined;
+			const allApmLogs: APMLog[] = [];
+			const pageSize = 2000; // Number of results per page
+		
+			do {
+			  // Step 2: Use Search API with Search After and PIT
+			  const searchResponse:any = await client.search({
+				body: {
+				  query: {
+					range: {
+					  '@timestamp': {
+						gte: 'now-120d/d',
+						lte: 'now/d',
+					  },
+					},
+				  },
+				  sort: [{ '@timestamp': 'asc' }], // Sort by timestamp
+				  search_after: searchAfter, // Use the last sort value from previous results
+				},
+				size: pageSize,
+				pit: { id: pitId }, // Use an object with the PIT ID
 			  });
-
-			  console.log('CAT INDICES: ');
-	  console.log(resp);
-*/
-
-
-	  
-	
-  // Process the response and retrieve the APM logs
-  const apmLogs = response.hits.hits.map((hit:any) => hit._source);
-  //
-  /*const res = await client.search({
-	index: '.ds-traces-apm-default-2024.04.07-000004',
-	//.ds-traces-apm-default-2024.02.07-000001 **
-	//metrics-endpoint.metadata_current_default
-	//
-	//.ds-metrics-apm.service_destination.1m-default-2024.02.07-000001
-  });
-  */
-
- /* const Logs = response.hits.hits.map((hit:any) => hit._source)*/
-
-  //
-
-  console.log("HERE IS APM LOGS: ")
-
-  const uniqueServicesMap = new Map();
- apmLogs.forEach(log => {
-    const serviceName = log.service.name;
-   
-    if (!uniqueServicesMap.has(serviceName)) {
-        uniqueServicesMap.set(serviceName, log.service);
-    }
-});
-
-const uniqueServiceObjects = Array.from(uniqueServicesMap.values());
-
-	  return uniqueServiceObjects;
-	
+		
+			  const hits = searchResponse.hits.hits;
+			  if (hits.length > 0) {
+				// Extract sort values for search_after
+				searchAfter = hits[hits.length - 1].sort;
+				const apmLogs = hits.map((hit: any) => hit._source);
+				allApmLogs.push(...apmLogs);
+			  }
+		
+			} while (searchAfter && allApmLogs.length < countResponse.count); // Continue until no more results
+		
+			// Close the Point in Time
+			await client.closePointInTime({ id: pitId });
+		
+			// Retrieve unique services
+			const uniqueServicesMap = new Map<string, any>();
+			allApmLogs.forEach((log: APMLog) => {
+			  const serviceName = log.service.name;
+			  if (!uniqueServicesMap.has(serviceName)) {
+				uniqueServicesMap.set(serviceName, log.service);
+			  }
+			});
+		
+			const uniqueServiceObjects = Array.from(uniqueServicesMap.values());
+		
+			return uniqueServiceObjects;
+		
 
 
 		  } catch (err:any) {
@@ -226,7 +289,8 @@ const uniqueServiceObjects = Array.from(uniqueServicesMap.values());
 		  const lowercaseServiceName = serviceName.toLowerCase().replace(/-/g, '_');
 		const index= `.ds-logs-apm.app.${lowercaseServiceName}-default-*`;
       const response = await client.search({
-        index
+        index,
+	
       });
 	  
 	  const apmLogs = response.hits.hits.map((hit:any) => hit._source);
@@ -257,13 +321,18 @@ const uniqueServiceObjects = Array.from(uniqueServicesMap.values());
 			const client = new Client(credentials);
 
 
-      const response = await client.search({
-        index: '.ds-traces-apm-default-*',
-		//.ds-traces-apm-default-2024.02.07-000001 **
-		//metrics-endpoint.metadata_current_default
-		//
-		//.ds-metrics-apm.service_destination.1m-default-2024.02.07-000001
-      });
+			const response = await client.search({
+				index: '.ds-traces-apm-default-*', // adjust the index if necessary
+				body: {
+				  query: {
+					bool: {
+					  must: [
+						{ match: { 'service.name': serviceName } }, 
+					  ],
+					},
+				  },
+				},
+			  });
 	  
 
 	  const apmLogs = response.hits.hits.map((hit:any) => hit._source);

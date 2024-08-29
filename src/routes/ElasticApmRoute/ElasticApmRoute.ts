@@ -11,7 +11,6 @@ class ElasticApmRouterClass extends BaseRouterClass {
 		this.ElasticApmController = new ElasticApmController();
 	}
 	 isCloudIdExists(array:any, cloudId:string) {
-		console.log(" ISCLODUID EXIST INTEGRATION ARRAY: ", JSON.stringify(array[0]))
 		return array.some((integration:any) => integration.credentials.cloud.id === cloudId);
 	  }
 	async addNewIntegration(req: Request, res: Response, next: NextFunction) {
@@ -39,11 +38,7 @@ class ElasticApmRouterClass extends BaseRouterClass {
         }
 
         const integrations = await this.ElasticApmController.listAllIntegrations();
-		console.log("HERE REQ BODY!!!!!!!")
-		console.log(req.body.cloud.id);
         const cloudIdExists = this.isCloudIdExists(integrations, req.body.cloud.id);
-
-		console.log("IS CLOUD ID EXISTS: ", cloudIdExists)
 
         if (!cloudIdExists) {
   

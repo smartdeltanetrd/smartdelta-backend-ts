@@ -134,5 +134,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+mongo_db
 # others
 TODO.md
