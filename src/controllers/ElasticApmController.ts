@@ -82,7 +82,33 @@ export default class ElasticApmController extends CommonClass {
 		try {
 			console.log('CREDENTIALS: ', credentials);
 			const client = new Client(credentials);
-
+ 
+ 
+			//ds-traces-apm-default-2024.08.05-000012 
+			const res = await client.search({
+				index: '.ds-traces-apm-default-*',
+				body: {
+				  query: {
+					bool: {
+					  must: [
+						
+						{
+						  range: {
+							'@timestamp': {
+							  gte: 'now-120d/d', // Adjust the time range as needed
+							  lte: 'now',
+							},
+						  },
+						},
+					  ],
+					},
+				  },
+				  size: 1000, // Adjust size based on expected results
+				  sort: [{ '@timestamp': { order: 'desc' } }],
+				},
+			  }); 
+ 
+ 
 			const response = await client.search({
 				index: '.ds-metrics-apm.internal-default-*',
 				body: {
@@ -105,18 +131,25 @@ export default class ElasticApmController extends CommonClass {
 				  sort: [{ '@timestamp': { order: 'desc' } }],
 				},
 			  });
-		  
-
+		 
+ 
+ 
 	  const resp = await client.cat.indices({
 		index: "*",
 		v: true,
 		s: "index"
 	  });
-
+ 
+ 
 	  console.log('CAT INDICES: ');
-console.log(resp);
-	
+ //console.log(resp);
+   
   // Process the response and retrieve the corresponed service s APM logs
+  const resLogs = res.hits.hits.map((hit:any) => hit._source);
+  console.log("TRACES:")
+  console.log(resLogs)
+ 
+ 
   const apmLogs = response.hits.hits.map((hit:any) => hit._source);
   const sparklineData = {
 	functionDuration: apmLogs.map((log) => ({
@@ -133,23 +166,25 @@ console.log(resp);
 	  totalMemory: log.system?.memory?.total || 0,
 	})),
   };
-  console.log("SPARKLINE DATA::")
- console.log( apmLogs);
- 
-/*
+  //console.log("SPARKLINE DATA::")
+ //console.log( apmLogs);
+ /*
 			const resp = await client.cat.indices({
 				index: "*",
 				v: true,
 				s: "index"
 			  });
-
+ 
+ 
 			  console.log('CAT INDICES: ');
 	  console.log(resp);
-	   .ds-metrics-apm.service_transaction.1m-default-2024.02.07-000001 
-*/
-
+	   .ds-metrics-apm.service_transaction.1m-default-2024.02.07-000001
+ */
+ 
+ 
   return {
-	sparklineData
+	sparklineData,
+	traces:resLogs
   };
   }
 		catch (err:any) {
@@ -160,9 +195,12 @@ console.log(resp);
 			500,
 			'Wrong password or username'
 		);
-
+ 
+ 
 		  }
 	}
+ 
+ 
 	async getServices(credentials:any): Promise<any> {
 		try {
 			const client = new Client(credentials);
@@ -358,6 +396,10 @@ console.log(resp);
 
 		  }
 	}
+	async getElasticMapData(credentials:any):Promise<any>{
+		const client = new Client(credentials);
+		//
+	}
 	async getErrors(credentials:any,serviceName:string, timeFilter:any, textFilters:any): Promise<any> {
 		try {
 			const client = new Client(credentials);
@@ -455,7 +497,7 @@ console.log(resp);
 		*/
 			// Assuming your Flask API returns some data
 			//const responseData = apiResponse.data;
-			const flaskResponse = await axios.post('http://127.0.0.1:5006/anomaly_detection', { data: apmLogs });
+			const flaskResponse = await axios.post(`${process.env.DATA_SCIENCE_API_URL}/anomaly_detection`, { data: apmLogs });
 
 	  return flaskResponse.data;
 	
