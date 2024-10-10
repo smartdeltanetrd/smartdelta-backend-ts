@@ -1,6 +1,6 @@
 //Libraries and Packages
 import express, { Request, Response } from 'express';
-import session  from 'express-session';
+import session from 'express-session';
 import cors from 'cors';
 import responseTime from 'response-time';
 
@@ -58,7 +58,7 @@ class App extends CommonClass {
 			});
 		});
 		this.app.get('/stressTest', (req: Request, res: Response) => {
-			for (let i = 0; i < 9999999999; i++) { }
+			for (let i = 0; i < 9999999999; i++) {}
 			res.status(200).json({ message: 'Stress Test Done.' });
 		});
 	}
@@ -66,20 +66,22 @@ class App extends CommonClass {
 	private configApp() {
 		this.app.use(express.json({ limit: '20mb' }));
 		this.app.use(express.urlencoded({ extended: true }));
-		this.app.use(session({
-			secret: 'my-secret-key',
-			resave: false,
-			saveUninitialized: false,
-			cookie: {
-			  maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
-			},
-		  }));
-		this.app.use(cors())
+		this.app.use(
+			session({
+				secret: 'my-secret-key',
+				resave: false,
+				saveUninitialized: false,
+				cookie: {
+					maxAge: 30 * 60 * 1000 // 30 minutes in milliseconds
+				}
+			})
+		);
+		this.app.use(cors());
 		this.appPort = this.config.default.PORT || 3002;
 	}
 
 	private initMiddlewares() {
-		const allowedOrigins = ['http://localhost:3001'];
+		const allowedOrigins = [process.env.FRONTEND_URL as string];
 
 		const options: cors.CorsOptions = {
 			origin: allowedOrigins

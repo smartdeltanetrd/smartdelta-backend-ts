@@ -66,7 +66,7 @@ export default class AnalysisController extends CommonClass {
 			formData.append('file2', csvStream2, 'data2.csv');
 
 			// Send POST request to the Flask API
-			const apiResponse = await axios.post('http://127.0.0.1:5006/categorical_comparison', formData, {
+			const apiResponse = await axios.post(process.env.DATA_SCIENCE_API_URL + '/categorical_comparison', formData, {
 				headers: formData.getHeaders()
 			});
 
