@@ -45,7 +45,6 @@ export default class AnalysisController extends CommonClass {
 
 			const response = await axios.get(flaskUrl);
 
-			console.log('Flask server response:', response.data);
 			return res.json(response.data);
 		} catch (err: any) {
 			return res.status(500).json({
