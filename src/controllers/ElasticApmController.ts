@@ -81,7 +81,8 @@ export default class ElasticApmController extends CommonClass {
 
 			//ds-traces-apm-default-2024.08.05-000012
 			const res = await client.search({
-				index: '.ds-traces-apm-default-*',
+				// index: '.ds-traces-apm-default-*',
+				index: '*',
 				body: {
 					query: {
 						bool: {
@@ -89,7 +90,7 @@ export default class ElasticApmController extends CommonClass {
 								{
 									range: {
 										'@timestamp': {
-											gte: 'now-120d/d', // Adjust the time range as needed
+											gte: 'now-1y/d', // Adjust the time range as needed
 											lte: 'now'
 										}
 									}
@@ -170,6 +171,7 @@ export default class ElasticApmController extends CommonClass {
 	  console.log(resp);
 	   .ds-metrics-apm.service_transaction.1m-default-2024.02.07-000001
  */
+			console.log('RES LOGS:', resLogs);
 
 			return {
 				sparklineData,
