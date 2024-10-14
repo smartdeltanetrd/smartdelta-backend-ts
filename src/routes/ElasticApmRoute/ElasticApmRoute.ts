@@ -167,6 +167,21 @@ class ElasticApmRouterClass extends BaseRouterClass {
 		}
 	}
 
+	async classifyTraceSpans(req: Request, res: Response, next: NextFunction) {
+		try {
+			let integrations = await this.ElasticApmController.listAllIntegrations();
+			const { credentials } = integrations[0];
+			const { serviceName } = req.params;
+
+			let result = await this.ElasticApmController.classifyTraceSpans(credentials, serviceName || '');
+
+			console.log('classifyTraceSpans result: ', result);
+			res.status(200).send(result);
+		} catch (error) {
+			this.handleError(error, next);
+		}
+	}
+
 	async setupMl(req: Request, res: Response, next: NextFunction) {
 		try {
 			let integrations = await this.ElasticApmController.listAllIntegrations();
@@ -185,6 +200,7 @@ class ElasticApmRouterClass extends BaseRouterClass {
 		this.router.post('/save-integration', this.addNewIntegration.bind(this));
 		this.router.get('/integrations', this.getIntegrations.bind(this));
 		this.router.get('/metrics/:serviceName', this.getMetrics.bind(this));
+		this.router.get('/trace-spans/:serviceName', this.classifyTraceSpans.bind(this));
 		this.router.get('/setup-ml', this.setupMl.bind(this));
 		this.router.get('/services', this.getServices.bind(this));
 		this.router.get('/errors/:serviceName', this.getErrors.bind(this));

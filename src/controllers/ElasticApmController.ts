@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Client } from '@elastic/elasticsearch';
 import { IElasticIntegration } from '../utils/interfaces/IModels/IElastic.interface';
 import ElasticIntegrationModel from '../models/UserModel/ElasticIntegrationModel';
+import TraceSpansClass from '../utils/classes/TraceSpansClass';
 
 interface APMLog {
 	service: {
@@ -49,6 +50,710 @@ export default class ElasticApmController extends CommonClass {
 	constructor() {
 		super();
 	}
+
+	trackSpanMockData: any = {
+		sparklineData: {
+			functionDuration: [
+				{
+					timestamp: '2024-08-28T17:17:44.267Z',
+					freeMemory: 10485760,
+					totalMemory: 134217728
+				},
+				{
+					timestamp: '2024-08-28T17:17:41.483Z',
+					freeMemory: 10485760,
+					totalMemory: 134217728
+				}
+			]
+		},
+		traces: [
+			{
+				parent: {
+					id: '702edc49af868357'
+				},
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				destination: {
+					address: 'dynamodb.us-east-1.amazonaws.com',
+					port: 443
+				},
+				processor: {
+					event: 'span'
+				},
+				url: {
+					original: 'https://dynamodb.us-east-1.amazonaws.com/'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: 'ecfa9b27261d4d1e6ddbcb1ed993d36d'
+				},
+				'@timestamp': '2024-08-29T09:03:02.785Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/29/[$LATEST]21a516abf2f742a0a33d178f1c2c8ccf'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST',
+					target: {
+						name: 'dynamodb.us-east-1.amazonaws.com:443',
+						type: 'http'
+					}
+				},
+				host: {
+					hostname: '169.254.63.53',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['44.201.100.130'],
+					name: '169.254.63.53',
+					architecture: 'x64'
+				},
+				http: {
+					request: {
+						method: 'POST'
+					},
+					response: {
+						status_code: 200
+					}
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-29T09:03:03Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					id: '702edc49af868357'
+				},
+				span: {
+					duration: {
+						us: 38375
+					},
+					representative_count: 1,
+					subtype: 'http',
+					destination: {
+						service: {
+							resource: 'dynamodb.us-east-1.amazonaws.com:443'
+						}
+					},
+					name: 'POST dynamodb.us-east-1.amazonaws.com',
+					action: 'POST',
+					id: '4902cfb44c4fed08',
+					type: 'external',
+					sync: false
+				},
+				timestamp: {
+					us: 1724922182785167
+				}
+			},
+			{
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				faas: {
+					execution: '28c919a3-f382-4a4f-bc61-53512d93e026',
+					coldstart: false,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: 'arn:aws:lambda:us-east-1:696774395662:function:FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					trigger: {
+						type: 'other'
+					},
+					version: '$LATEST'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				processor: {
+					event: 'transaction'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					origin: {
+						provider: 'aws'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: 'ecfa9b27261d4d1e6ddbcb1ed993d36d'
+				},
+				'@timestamp': '2024-08-29T09:03:02.767Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/29/[$LATEST]21a516abf2f742a0a33d178f1c2c8ccf'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST'
+				},
+				host: {
+					hostname: '169.254.63.53',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['44.201.100.130'],
+					name: '169.254.63.53',
+					architecture: 'x64'
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-29T09:03:03Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					result: 'success',
+					duration: {
+						us: 56909
+					},
+					representative_count: 1,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: '702edc49af868357',
+					span_count: {
+						started: 1
+					},
+					type: 'request',
+					sampled: true
+				},
+				span: {
+					id: '702edc49af868357'
+				},
+				timestamp: {
+					us: 1724922182767007
+				}
+			},
+			{
+				parent: {
+					id: 'babf50cd687617b1'
+				},
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				destination: {
+					address: 'dynamodb.us-east-1.amazonaws.com',
+					port: 443
+				},
+				processor: {
+					event: 'span'
+				},
+				url: {
+					original: 'https://dynamodb.us-east-1.amazonaws.com/'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: 'b6ecb7adf09b7a58fe04d9a419bb428a'
+				},
+				'@timestamp': '2024-08-29T09:02:57.625Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/29/[$LATEST]21a516abf2f742a0a33d178f1c2c8ccf'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST',
+					target: {
+						name: 'dynamodb.us-east-1.amazonaws.com:443',
+						type: 'http'
+					}
+				},
+				host: {
+					hostname: '169.254.63.53',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['44.201.100.130'],
+					name: '169.254.63.53',
+					architecture: 'x64'
+				},
+				http: {
+					request: {
+						method: 'POST'
+					},
+					response: {
+						status_code: 200
+					}
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-29T09:02:58Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					id: 'babf50cd687617b1'
+				},
+				span: {
+					duration: {
+						us: 38319
+					},
+					representative_count: 1,
+					subtype: 'http',
+					destination: {
+						service: {
+							resource: 'dynamodb.us-east-1.amazonaws.com:443'
+						}
+					},
+					name: 'POST dynamodb.us-east-1.amazonaws.com',
+					action: 'POST',
+					id: '0602c78faee1a6e1',
+					type: 'external',
+					sync: false
+				},
+				timestamp: {
+					us: 1724922177625721
+				}
+			},
+			{
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				faas: {
+					execution: 'b5c61682-1a31-477f-a3ae-533b1eeb95cf',
+					coldstart: false,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: 'arn:aws:lambda:us-east-1:696774395662:function:FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					trigger: {
+						type: 'other'
+					},
+					version: '$LATEST'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				processor: {
+					event: 'transaction'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					origin: {
+						provider: 'aws'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: 'b6ecb7adf09b7a58fe04d9a419bb428a'
+				},
+				'@timestamp': '2024-08-29T09:02:57.602Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/29/[$LATEST]21a516abf2f742a0a33d178f1c2c8ccf'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST'
+				},
+				host: {
+					hostname: '169.254.63.53',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['44.201.100.130'],
+					name: '169.254.63.53',
+					architecture: 'x64'
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-29T09:02:58Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					result: 'success',
+					duration: {
+						us: 62398
+					},
+					representative_count: 1,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: 'babf50cd687617b1',
+					span_count: {
+						started: 1
+					},
+					type: 'request',
+					sampled: true
+				},
+				span: {
+					id: 'babf50cd687617b1'
+				},
+				timestamp: {
+					us: 1724922177602006
+				}
+			},
+			{
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				faas: {
+					execution: '89cfbd1e-9206-4393-b6ec-c6267b9c87ae',
+					coldstart: false,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: 'arn:aws:lambda:us-east-1:696774395662:function:FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					trigger: {
+						type: 'other'
+					},
+					version: '$LATEST'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				processor: {
+					event: 'transaction'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					origin: {
+						provider: 'aws'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: '1ceaf1a1a3efeef48ed52c9b10b3f9b3'
+				},
+				'@timestamp': '2024-08-29T09:02:52.321Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/29/[$LATEST]21a516abf2f742a0a33d178f1c2c8ccf'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST'
+				},
+				host: {
+					hostname: '169.254.63.53',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['44.201.100.130'],
+					name: '169.254.63.53',
+					architecture: 'x64'
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-29T09:02:58Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					result: 'success',
+					duration: {
+						us: 29535
+					},
+					representative_count: 1,
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					id: '69e584ca5f154775',
+					span_count: {
+						started: 1
+					},
+					type: 'request',
+					sampled: true
+				},
+				span: {
+					id: '69e584ca5f154775'
+				},
+				timestamp: {
+					us: 1724922172321008
+				}
+			},
+			{
+				parent: {
+					id: '8e2225ffb7a4370f'
+				},
+				agent: {
+					activation_method: 'aws-lambda-layer',
+					name: 'nodejs',
+					version: '4.5.2'
+				},
+				process: {
+					args: ['/var/lang/bin/node', '/var/runtime/index.mjs'],
+					parent: {
+						pid: 1
+					},
+					pid: 16,
+					title: '/var/lang/bin/node'
+				},
+				destination: {
+					address: 'dynamodb.us-east-1.amazonaws.com',
+					port: 443
+				},
+				processor: {
+					event: 'span'
+				},
+				url: {
+					original: 'https://dynamodb.us-east-1.amazonaws.com/'
+				},
+				cloud: {
+					provider: 'aws',
+					service: {
+						name: 'lambda'
+					},
+					region: 'us-east-1',
+					account: {
+						id: '696774395662'
+					}
+				},
+				observer: {
+					hostname: '42c0295cea9d',
+					type: 'apm-server',
+					version: '8.12.1'
+				},
+				trace: {
+					id: 'b6c254b6abf265efa85377bf58dbd1df'
+				},
+				'@timestamp': '2024-08-28T17:17:40.864Z',
+				data_stream: {
+					namespace: 'default',
+					type: 'traces',
+					dataset: 'apm'
+				},
+				service: {
+					node: {
+						name: '2024/08/28/[$LATEST]634371f4aef54de6b027ffba3111013a'
+					},
+					environment: 'development',
+					framework: {
+						name: 'AWS Lambda'
+					},
+					name: 'FloraVisionCloudStack-SensorDataProcessor2B2527C2-J9n7oWuGMSNJ',
+					runtime: {
+						name: 'AWS_Lambda_nodejs18.x',
+						version: '18.20.4'
+					},
+					language: {
+						name: 'javascript'
+					},
+					version: '$LATEST',
+					target: {
+						name: 'dynamodb.us-east-1.amazonaws.com:443',
+						type: 'http'
+					}
+				},
+				host: {
+					hostname: '169.254.83.157',
+					os: {
+						platform: 'linux'
+					},
+					ip: ['34.226.192.237'],
+					name: '169.254.83.157',
+					architecture: 'x64'
+				},
+				http: {
+					request: {
+						method: 'POST'
+					},
+					response: {
+						status_code: 200
+					}
+				},
+				event: {
+					agent_id_status: 'missing',
+					ingested: '2024-08-28T17:17:45Z',
+					success_count: 1,
+					outcome: 'success'
+				},
+				transaction: {
+					id: '8e2225ffb7a4370f'
+				},
+				span: {
+					duration: {
+						us: 377847
+					},
+					representative_count: 1,
+					subtype: 'http',
+					destination: {
+						service: {
+							resource: 'dynamodb.us-east-1.amazonaws.com:443'
+						}
+					},
+					name: 'POST dynamodb.us-east-1.amazonaws.com',
+					action: 'POST',
+					id: '051bee88d8128c0b',
+					type: 'external',
+					sync: false
+				},
+				timestamp: {
+					us: 1724865460864492
+				}
+			}
+		]
+	};
+
 	async saveIntegration(newIntegration: IElasticIntegration): Promise<any> {
 		try {
 			let integration = new ElasticIntegrationModel(newIntegration);
@@ -363,6 +1068,69 @@ export default class ElasticApmController extends CommonClass {
 		const client = new Client(credentials);
 		//
 	}
+	// it takes trace data for spans from elasticsearch
+	async getTraceSpans(credentials: any, serviceName: string): Promise<any> {
+		try {
+			const client = new Client(credentials);
+
+			// TODO:: Do this fetching traces stuff from Elasticsearch
+			// const res = await client.search({
+			// 	index: '*', // TODO:: Find this search index
+			// 	body: {
+			// 		query: {
+			// 			bool: {
+			// 				must: [
+			// 					{
+			// 						range: {
+			// 							'@timestamp': {
+			// 								gte: 'now-1y/d',
+			// 								lte: 'now'
+			// 							}
+			// 						}
+			// 					}
+			// 				]
+			// 			}
+			// 		},
+			// 		size: 50000,
+			// 		sort: [{ '@timestamp': { order: 'desc' } }]
+			// 	}
+			// });
+
+			// const traceSpans = res.hits.hits.map((hit) => hit._source);
+			const traceSpans = this.trackSpanMockData.traces;
+
+			return { traceSpans };
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error('Error fetching traces:', error.message);
+			}
+			throw new BaseError(
+				'Error occurred while fetching traces from Elastic APM:',
+				'Elastic APM trace fetching failed',
+				500,
+				'Error fetching traces'
+			);
+		}
+	}
+	// it classifies the trace spans (classifyTraceSpans -> getTraceSpans)
+	async classifyTraceSpans(credentials: any, serviceName: string): Promise<any> {
+		try {
+			const fetchedTraces = await this.getTraceSpans(credentials, serviceName);
+			const { traceSpans } = fetchedTraces;
+
+			if (!traceSpans || traceSpans.length === 0) {
+				throw new Error('No trace spans found');
+			}
+
+			const classifiedSpans = TraceSpansClass.classifySpans(traceSpans);
+
+			return classifiedSpans;
+		} catch (error: any) {
+			console.error('Error classifying traces:', error.message);
+			throw new BaseError('Error classifying traces', error.message, 500, 'Failed to classify traces');
+		}
+	}
+
 	async getErrors(credentials: any, serviceName: string, timeFilter: any, textFilters: any): Promise<any> {
 		try {
 			const client = new Client(credentials);
