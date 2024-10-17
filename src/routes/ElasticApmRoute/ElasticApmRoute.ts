@@ -172,8 +172,11 @@ class ElasticApmRouterClass extends BaseRouterClass {
 			let integrations = await this.ElasticApmController.listAllIntegrations();
 			const { credentials } = integrations[0];
 			const { serviceName } = req.params;
+			const { dateRange } = req.query;
+			console.log('Service Name:', serviceName);
+			console.log('Date Range:', dateRange);
 
-			let result = await this.ElasticApmController.classifyTraceSpans(credentials, serviceName || '');
+			let result = await this.ElasticApmController.classifyTraceSpans(credentials, serviceName || '', dateRange || '');
 
 			console.log('classifyTraceSpans result: ', result);
 			res.status(200).send(result);
