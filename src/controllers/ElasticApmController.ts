@@ -410,7 +410,7 @@ export default class ElasticApmController extends CommonClass {
 				return isAfter(spanTimestamp, startDate);
 			});
 
-			return { traceSpans: filteredSpans };
+			return { traceSpans: filteredSpans ?? {} };
 		} catch (error) {
 			if (error instanceof Error) {
 				console.error('Error fetching traces:', error.message);
@@ -429,9 +429,9 @@ export default class ElasticApmController extends CommonClass {
 			const fetchedTraces = await this.getTraceSpans(credentials, serviceName, dateRange);
 			const { traceSpans } = fetchedTraces;
 
-			if (!traceSpans || traceSpans.length === 0) {
-				throw new Error('No trace spans found');
-			}
+			// if (!traceSpans || traceSpans.length === 0) {
+			// 	throw new Error('No trace spans found');
+			// }
 
 			const classifiedSpans = TraceSpansClass.classifySpans(traceSpans); // algo
 
