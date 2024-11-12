@@ -145,7 +145,7 @@ export default class ElasticApmController extends CommonClass {
 			console.log(resLogs);
 
 			const apmLogs = response.hits.hits.map((hit: any) => hit._source);
-			console.error('apmLogs: ', apmLogs);
+			console.log('apmLogs: ', JSON.stringify(apmLogs));
 			const sparklineData = {
 				functionDuration: apmLogs.map((log) => ({
 					timestamp: log['@timestamp'],
@@ -177,9 +177,15 @@ export default class ElasticApmController extends CommonClass {
  */
 			console.log('RES LOGS:', resLogs);
 
+			const filteredApmLogs = apmLogs.map((log) => ({
+				'@timestamp': new Date(log['@timestamp']).toLocaleString(),
+				system: log.system
+			}));
+
 			return {
 				sparklineData,
 				traces: resLogs
+				// filteredApmLogs: filteredApmLogs
 			};
 		} catch (err: any) {
 			console.error('Error occurred while running the Python script:', err);
@@ -374,7 +380,7 @@ export default class ElasticApmController extends CommonClass {
 
 			// TODO:: Do this fetching traces stuff from Elasticsearch
 			// const res = await client.search({
-			// 	index: '*', // TODO:: Find this search index
+			// 	index: '*', // TODO:: Find this search index, put here "serviceName"
 			// 	body: {
 			// 		query: {
 			// 			bool: {
