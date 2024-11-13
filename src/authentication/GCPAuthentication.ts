@@ -1,15 +1,13 @@
-import KubernetesService from "../services/KubernetesService";
-import { AuthenticationStrategy } from "./ AuthenticationStrategy";
+import KubernetesService from '../services/KubernetesService';
+import { AuthenticationStrategy } from './ AuthenticationStrategy';
 
 import { KubeConfig, CoreV1Api } from '@kubernetes/client-node';
 
-// Gcloud Service account authentication via K8s service
 export default class GoogleCloudAuthStrategy implements AuthenticationStrategy {
 	private k8sService: KubernetesService;
 	constructor(k8sService: KubernetesService) {
 		this.k8sService = k8sService;
-	  }
-	
+	}
 
 	async authenticate(credentials: any): Promise<any> {
 		console.log(credentials);
@@ -22,12 +20,10 @@ export default class GoogleCloudAuthStrategy implements AuthenticationStrategy {
 		for (const node of response.body.items) {
 			const nodeName = node.metadata?.name ?? 'Unknown Node';
 			console.log('Node:', nodeName);
-			// Print other node information as needed
-		  }
-		
-	}
-	listClusters(authData: any): Promise<any[]> {
-		throw new Error("Method not implemented.");
+		}
 	}
 
+	listClusters(authData: any): Promise<any[]> {
+		throw new Error('Method not implemented.');
+	}
 }
