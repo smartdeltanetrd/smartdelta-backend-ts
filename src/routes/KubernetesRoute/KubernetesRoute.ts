@@ -1,55 +1,73 @@
 import { Request, Response, NextFunction } from "express";
 import KubernetesController from "../../controllers/KubernetesController";
 import BaseRouterClass from "../../utils/classes/BaseRouterClass";
-import { User } from "../../express-session";
 
-class KubernetesRouterClass extends BaseRouterClass{
-	private KubernetesController!: KubernetesController;
-	constructor() {
-		super();
-	}
-	async authenticateK8s(req: Request, res: Response, next: NextFunction) {
-		try {
-			const { provider, credentials, authMethod } = req.body;
-			if (!req.session.user) {
-				req.session.user = {};
-			  }
-			  req.session.user.provider = provider;
-			  req.session.user.credentials = credentials;
-			  req.session.user.authMethod = authMethod;
+class KubernetesRouterClass extends BaseRouterClass {
+  private KubernetesController!: KubernetesController;
 
+  constructor() {
+    super();
+  }
 
-			this.KubernetesController = new KubernetesController(provider,authMethod,credentials);
+  async authenticateK8s(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { provider, credentials, authMethod } = req.body;
+      this.KubernetesController = new KubernetesController(provider, authMethod, credentials);
+      const result = await this.KubernetesController.authenticateK8s(credentials);
+      res.status(200).send({
+        authResult: result,
+        provider,
+        credentials,
+        authMethod,
+      });
+    } catch (error) {
+      this.handleError(error, next);
+    }
+  }
 
-			let result = await this.KubernetesController.authenticateK8s(credentials);
-		
-			
-			res.status(200).send(result);
-		} catch (error) {
-			this.handleError(error, next);
-		}
-	}
-	async getClusterInfo(req: Request, res: Response, next: NextFunction) {
-		try {
-			const credentials = req.session.user?.credentials;
-			const provider = req.session.user?.provider;
-			const authMethod = req.session.user?.authMethod;
-			console.log("CREdentıals: " + credentials);
-			console.log('AUTH METHOD cluster route: ', authMethod);
-			this.KubernetesController = new KubernetesController(provider,authMethod,credentials);
-			let result = await this.KubernetesController.getNodes();
-			console.log(result);
-			res.status(200).send(result);
-			
-		} catch (error) {
-			this.handleError(error, next);
-		}
-	}
-	
-	initRoutes(): void {
-		this.router.post('/authenticate',this.authenticateK8s.bind(this));
-		this.router.get('/cluster-info',this.getClusterInfo.bind(this));
-	}
+  async getClusterInfo(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { provider, credentials, authMethod } = req.body;
+      if (!provider || !credentials || !authMethod) {
+        return res.status(400).send({
+          message: "Required credentials are missing. Please re-authenticate.",
+        });
+      }
+      if (!this.KubernetesController) {
+        this.KubernetesController = new KubernetesController(provider, authMethod, credentials);
+      }
+      const result = await this.KubernetesController.getNodes();
+      res.status(200).send(result);
+    } catch (error) {
+      console.error("Error in cluster-info:", error);
+      this.handleError(error, next);
+    }
+  }
+
+  async getPodMetrics(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { provider, credentials, authMethod, namespace } = req.body;
+      if (!provider || !credentials || !authMethod || !namespace) {
+        return res.status(400).send({
+          message: "Required parameters are missing. Please provide all necessary information.",
+        });
+      }
+      if (!this.KubernetesController) {
+        this.KubernetesController = new KubernetesController(provider, authMethod, credentials);
+      }
+      const result = await this.KubernetesController.getPodMetrics(namespace);
+      res.status(200).send(result);
+    } catch (error) {
+      console.error("Error in getPodMetrics:", error);
+      this.handleError(error, next);
+    }
+  }
+
+  initRoutes(): void {
+    this.router.post('/authenticate', this.authenticateK8s.bind(this));
+    this.router.post('/cluster-info', this.getClusterInfo.bind(this));
+    this.router.post('/pod-metrics', this.getPodMetrics.bind(this));
+  }
 }
 
 export const KubernetesRoutes = new KubernetesRouterClass().router;
