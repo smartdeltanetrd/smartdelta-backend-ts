@@ -19,6 +19,7 @@ import { KubernetesRoutes } from './routes/KubernetesRoute/KubernetesRoute';
 import { AnalysisRoutes } from './routes/AnalysisRoute/AnalysisRoute';
 import { ElasticApmRoutes } from './routes/ElasticApmRoute/ElasticApmRoute';
 import { GptRoutes } from './routes/GptRoute/GptRoute';
+import { VercelIntegrationRoutes } from './routes/VercelRoute/VercelIntegrationRoutes';
 
 class App extends CommonClass {
 	private app: express.Application;
@@ -52,6 +53,7 @@ class App extends CommonClass {
 		this.app.use('/analysis', AnalysisRoutes);
 		this.app.use('/k8s', KubernetesRoutes);
 		this.app.use('/gpt', GptRoutes);
+		this.app.use('/vercel', VercelIntegrationRoutes);
 		this.app.get('/', (req: Request, res: Response) => {
 			res.json({
 				message: 'Hello World'
