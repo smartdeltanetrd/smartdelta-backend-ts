@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import BaseRouterClass from '../../utils/classes/BaseRouterClass';
 import VercelIntegrationController from '../../controllers/VercelIntegrationController';
-import { body, validationResult } from 'express-validator';
+import { validateIntegration } from '../../middlewares/vercel/validateIntegrationMiddleware';
 
 class VercelIntegrationRouter extends BaseRouterClass {
 	constructor() {
@@ -9,20 +9,7 @@ class VercelIntegrationRouter extends BaseRouterClass {
 		this.initRoutes();
 	}
 
-	private validateIntegration = [
-		body('username').isString().withMessage('Username must be a string'),
-		body('email').isEmail().withMessage('Invalid email format'),
-		body('token').isString().withMessage('Token must be a string'),
-		(req: Request, res: Response, next: NextFunction) => {
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return res.status(400).json({ errors: errors.array() });
-			}
-			next();
-		}
-	];
-
-	// it saves integration handler
+	// Save integration handler
 	async saveIntegration(req: Request, res: Response, next: NextFunction) {
 		try {
 			const result = await VercelIntegrationController.saveIntegration(req.body);
@@ -32,7 +19,7 @@ class VercelIntegrationRouter extends BaseRouterClass {
 		}
 	}
 
-	// list integrations handler
+	// List integrations handler
 	async listIntegrations(req: Request, res: Response, next: NextFunction) {
 		try {
 			const result = await VercelIntegrationController.listIntegrations();
@@ -42,7 +29,7 @@ class VercelIntegrationRouter extends BaseRouterClass {
 		}
 	}
 
-	// fetch vercel projects handler
+	// Fetch Vercel projects handler
 	async getVercelProjects(req: Request, res: Response, next: NextFunction) {
 		try {
 			const { email } = req.body;
@@ -57,10 +44,11 @@ class VercelIntegrationRouter extends BaseRouterClass {
 		}
 	}
 
+	// Initialize routes
 	initRoutes(): void {
-		this.router.post('/store', this.validateIntegration, this.saveIntegration.bind(this));
+		this.router.post('/store', validateIntegration, this.saveIntegration.bind(this));
 		this.router.get('/list', this.listIntegrations.bind(this));
-		this.router.post('/projects', this.getVercelProjects.bind(this));
+		this.router.post('/projects', validateIntegration, this.getVercelProjects.bind(this));
 	}
 }
 
