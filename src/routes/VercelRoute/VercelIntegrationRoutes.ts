@@ -1,12 +1,26 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import BaseRouterClass from '../../utils/classes/BaseRouterClass';
 import VercelIntegrationController from '../../controllers/VercelIntegrationController';
+import { body, validationResult } from 'express-validator';
 
 class VercelIntegrationRouter extends BaseRouterClass {
 	constructor() {
 		super();
 		this.initRoutes();
 	}
+
+	private validateIntegration = [
+		body('username').isString().withMessage('Username must be a string'),
+		body('email').isEmail().withMessage('Invalid email format'),
+		body('token').isString().withMessage('Token must be a string'),
+		(req: Request, res: Response, next: NextFunction) => {
+			const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({ errors: errors.array() });
+			}
+			next();
+		}
+	];
 
 	// it saves integration handler
 	async saveIntegration(req: Request, res: Response, next: NextFunction) {
@@ -44,7 +58,7 @@ class VercelIntegrationRouter extends BaseRouterClass {
 	}
 
 	initRoutes(): void {
-		this.router.post('/store', this.saveIntegration.bind(this));
+		this.router.post('/store', this.validateIntegration, this.saveIntegration.bind(this));
 		this.router.get('/list', this.listIntegrations.bind(this));
 		this.router.post('/projects', this.getVercelProjects.bind(this));
 	}

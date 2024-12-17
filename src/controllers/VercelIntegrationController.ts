@@ -22,9 +22,9 @@ class VercelIntegrationController {
 		return { message: 'Integration saved successfully' };
 	}
 
-	// list all vercel integrations
+	// list all vercel integration -without any token-
 	async listIntegrations(): Promise<any> {
-		const integrations = await VercelIntegrationModel.find({}).select('-token'); // Exclude token
+		const integrations = await VercelIntegrationModel.find({}).select('username email createdAt');
 		return integrations;
 	}
 
