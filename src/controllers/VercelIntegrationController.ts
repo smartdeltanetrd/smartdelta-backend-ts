@@ -1,7 +1,7 @@
 import VercelIntegrationModel from '../models/MicroserviceArchitectureModels/VercelModel/VercelIntegrationModel';
-import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import BaseError from '../utils/classes/BaseErrorClass';
+// import { decryptToken } from '../utils/helpers/encryptions.util';
 
 class VercelIntegrationController {
 	async saveIntegration(reqBody: any): Promise<any> {
@@ -33,19 +33,24 @@ class VercelIntegrationController {
 			throw new BaseError('Integration not found for the given email', 'Not Found', 404, 'Invalid Email');
 		}
 
-		return { encryptedToken: integration.token }; // Send encrypted token
+		return { encryptedToken: integration.token };
 	}
 
 	async getVercelProjects(encryptedToken: string): Promise<any> {
-		const secretKey = process.env.ENCRYPTION_KEY || 'default-secret-key';
-		const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
-		const token = bytes.toString(CryptoJS.enc.Utf8);
+		try {
+			const response = await axios.get('https://api.vercel.com/v9/projects', {
+				headers: { Authorization: `Bearer ${encryptedToken}` }
+			});
+			return response.data;
+		} catch (error) {
+			console.error('Error while fetching Vercel projects:', error);
+			throw new Error('Failed to fetch projects from Vercel. Please check your token.');
+		}
+	}
 
-		const response = await axios.get('https://api.vercel.com/v9/projects', {
-			headers: { Authorization: `Bearer ${token}` }
-		});
-
-		return response.data;
+	async deleteAllVercelIntegrations(): Promise<void> {
+		const result = await VercelIntegrationModel.deleteMany({});
+		console.log(`${result.deletedCount} documents deleted from VercelIntegration collection`);
 	}
 }
 

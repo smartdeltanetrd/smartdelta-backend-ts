@@ -33,7 +33,6 @@ class VercelIntegrationRouter extends BaseRouterClass {
 			if (!email) {
 				return res.status(400).json({ message: 'Email is required to fetch the token' });
 			}
-
 			const result = await VercelIntegrationController.getEncryptedToken(email);
 			res.status(200).json(result);
 		} catch (error) {
@@ -51,11 +50,21 @@ class VercelIntegrationRouter extends BaseRouterClass {
 		}
 	}
 
+	async deleteAllIntegrations(req: Request, res: Response, next: NextFunction) {
+		try {
+			await VercelIntegrationController.deleteAllVercelIntegrations();
+			res.status(200).json({ message: 'All integrations deleted successfully' });
+		} catch (error) {
+			this.handleError(error, next);
+		}
+	}
+
 	initRoutes(): void {
 		this.router.post('/store', validateIntegration, this.saveIntegration.bind(this));
 		this.router.get('/list', this.listIntegrations.bind(this));
-		this.router.post('/token', this.getEncryptedToken.bind(this)); // Send encrypted token
-		this.router.post('/projects', this.getVercelProjects.bind(this)); // Accept encrypted token
+		this.router.post('/token', this.getEncryptedToken.bind(this));
+		this.router.post('/projects', this.getVercelProjects.bind(this));
+		this.router.delete('/delete-all', this.deleteAllIntegrations.bind(this));
 	}
 }
 
