@@ -1,9 +1,9 @@
 import VercelIntegrationModel from '../models/MicroserviceArchitectureModels/VercelModel/VercelIntegrationModel';
+import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import BaseError from '../utils/classes/BaseErrorClass';
 
 class VercelIntegrationController {
-	// save all vercel integration
 	async saveIntegration(reqBody: any): Promise<any> {
 		const { username, email, token } = reqBody;
 
@@ -22,21 +22,27 @@ class VercelIntegrationController {
 		return { message: 'Integration saved successfully' };
 	}
 
-	// list all vercel integration -without any token-
 	async listIntegrations(): Promise<any> {
 		const integrations = await VercelIntegrationModel.find({}).select('username email createdAt');
 		return integrations;
 	}
 
-	// fetch vercel projects which are integrated(authorized)
-	async getVercelProjects(email: string): Promise<any> {
+	async getEncryptedToken(email: string): Promise<any> {
 		const integration = await VercelIntegrationModel.findOne({ email });
 		if (!integration) {
 			throw new BaseError('Integration not found for the given email', 'Not Found', 404, 'Invalid Email');
 		}
 
+		return { encryptedToken: integration.token }; // Send encrypted token
+	}
+
+	async getVercelProjects(encryptedToken: string): Promise<any> {
+		const secretKey = process.env.ENCRYPTION_KEY || 'default-secret-key';
+		const bytes = CryptoJS.AES.decrypt(encryptedToken, secretKey);
+		const token = bytes.toString(CryptoJS.enc.Utf8);
+
 		const response = await axios.get('https://api.vercel.com/v9/projects', {
-			headers: { Authorization: `Bearer ${integration.token}` }
+			headers: { Authorization: `Bearer ${token}` }
 		});
 
 		return response.data;

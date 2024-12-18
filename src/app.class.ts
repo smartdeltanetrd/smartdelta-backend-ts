@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import responseTime from 'response-time';
-
+import cookieParser from 'cookie-parser';
 import mongoSetup from './config/db/mongo';
 
 //Middlewares
