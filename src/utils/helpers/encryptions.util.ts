@@ -36,7 +36,6 @@ export const decryptToken = (encryptedToken: string): string => {
 	});
 
 	const decryptedToken = decrypted.toString(CryptoJS.enc.Utf8);
-
 	if (!decryptedToken) {
 		throw new Error('Decryption failed. Ensure the secret key and token are correct.');
 	}

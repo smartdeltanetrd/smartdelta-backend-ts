@@ -1,7 +1,7 @@
 import VercelIntegrationModel from '../models/MicroserviceArchitectureModels/VercelModel/VercelIntegrationModel';
 import axios from 'axios';
 import BaseError from '../utils/classes/BaseErrorClass';
-// import { decryptToken } from '../utils/helpers/encryptions.util';
+import { decryptToken } from '../utils/helpers/encryptions.util';
 
 class VercelIntegrationController {
 	async saveIntegration(reqBody: any): Promise<any> {
@@ -38,8 +38,9 @@ class VercelIntegrationController {
 
 	async getVercelProjects(encryptedToken: string): Promise<any> {
 		try {
+			const token = decryptToken(encryptedToken);
 			const response = await axios.get('https://api.vercel.com/v9/projects', {
-				headers: { Authorization: `Bearer ${encryptedToken}` }
+				headers: { Authorization: `Bearer ${token}` }
 			});
 			return response.data;
 		} catch (error) {
