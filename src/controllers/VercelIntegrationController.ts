@@ -27,18 +27,13 @@ class VercelIntegrationController {
 		return integrations;
 	}
 
-	async getEncryptedToken(email: string): Promise<any> {
-		const integration = await VercelIntegrationModel.findOne({ email });
-		if (!integration) {
-			throw new BaseError('Integration not found for the given email', 'Not Found', 404, 'Invalid Email');
-		}
-
-		return { encryptedToken: integration.token };
-	}
-
-	async getVercelProjects(encryptedToken: string): Promise<any> {
+	async getVercelProjects(email: string): Promise<any> {
 		try {
-			const token = decryptToken(encryptedToken);
+			const integration = await VercelIntegrationModel.findOne({ email });
+			if (!integration || !integration.token) {
+				throw new BaseError('Integration and its token not found for the given email', 'Not Found', 404, 'Invalid Email');
+			}
+			const token = decryptToken(integration.token);
 			const response = await axios.get('https://api.vercel.com/v9/projects', {
 				headers: { Authorization: `Bearer ${token}` }
 			});
@@ -47,6 +42,15 @@ class VercelIntegrationController {
 			console.error('Error while fetching Vercel projects:', error);
 			throw new Error('Failed to fetch projects from Vercel. Please check your token.');
 		}
+	}
+
+	async getEncryptedToken(email: string): Promise<any> {
+		const integration = await VercelIntegrationModel.findOne({ email });
+		if (!integration) {
+			throw new BaseError('Integration not found for the given email', 'Not Found', 404, 'Invalid Email');
+		}
+
+		return { encryptedToken: integration.token };
 	}
 
 	async deleteAllVercelIntegrations(): Promise<void> {
