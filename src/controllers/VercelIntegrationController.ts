@@ -6,7 +6,6 @@ import { decryptToken } from '../utils/helpers/encryptions.util';
 class VercelIntegrationController {
 	async saveIntegration(reqBody: any): Promise<any> {
 		const { username, email, token } = reqBody;
-
 		if (!username || !email || !token) {
 			throw new BaseError('Missing required fields', 'Validation Error', 400, 'Invalid Request');
 		}
@@ -14,6 +13,16 @@ class VercelIntegrationController {
 		const existingIntegration = await VercelIntegrationModel.findOne({ email });
 		if (existingIntegration) {
 			throw new BaseError('Integration already exists for this email', 'Duplicate Entry', 400, 'Conflict');
+		}
+
+		try {
+			const decryptedToken = decryptToken(token);
+			await axios.get('https://api.vercel.com/v2/user', {
+				headers: { Authorization: `Bearer ${decryptedToken}` }
+			});
+		} catch (error) {
+			console.error(`This account is not exists on Vercel: ${email} `, error);
+			throw new Error('This vercel account is not exists. Please check your credentials.');
 		}
 
 		const newIntegration = new VercelIntegrationModel({ username, email, token });
