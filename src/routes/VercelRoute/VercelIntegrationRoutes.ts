@@ -42,8 +42,8 @@ class VercelIntegrationRouter extends BaseRouterClass {
 
 	async getVercelProjects(req: Request, res: Response, next: NextFunction) {
 		try {
-			const { encryptedToken } = req.body;
-			const result = await VercelIntegrationController.getVercelProjects(encryptedToken);
+			const { email } = req.body;
+			const result = await VercelIntegrationController.getVercelProjects(email);
 			res.status(200).json(result);
 		} catch (error) {
 			this.handleError(error, next);
