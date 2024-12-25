@@ -37,20 +37,20 @@ export default class AnalysisController extends CommonClass {
 		});
 	}
 
-	async predictResourceTrends(req: Request, res: Response): Promise<any> {
+	async predictResourceTrends(): Promise<any> {
 		try {
 			const flaskUrl = process.env.DATA_SCIENCE_API_URL + '/predict_resource';
-			// 'http://127.0.0.1:5006/predict_resource
-			// 'http://172.19.0.4:5006/predict_resource
-
 			const response = await axios.get(flaskUrl);
 
-			return res.json(response.data);
+			return response.data;
 		} catch (err: any) {
-			return res.status(500).json({
-				message: 'Error occurred while calling the Flask server:',
-				error: err.message
+			console.error('Error occurred while calling Flask server:', {
+				message: err.message,
+				stack: err.stack,
+				config: err.config
 			});
+
+			throw new Error(`Flask server error: ${err.message}`);
 		}
 	}
 
